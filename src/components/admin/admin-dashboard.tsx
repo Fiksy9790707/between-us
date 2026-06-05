@@ -271,7 +271,7 @@ export function AdminDashboard() {
               ? "静态镜像只读"
               : "本地备用模式"}
         </strong>
-        。云端模式下，你和 Cindy 在不同设备上修改后都会写入同一份数据库；镜像站只负责展示，管理内容请回到 Vercel 主站。
+        。云端模式下，你在不同设备上修改后都会写入同一份数据库；镜像站只负责展示，管理内容请回到 Vercel 主站。
       </div>
 
       <Tabs value={active} defaultValue="timeline" onValueChange={handleTabChange}>
