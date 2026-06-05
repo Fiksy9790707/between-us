@@ -1,0 +1,217 @@
+{
+  "profile": {
+    "names": {
+      "personA": "Eric",
+      "personB": "Mia"
+    },
+    "startedAt": "2022-10-07",
+    "statement": "把认真生活的每一天，安静地放进同一个时间轴。"
+  },
+  "timeline": [
+    {
+      "id": "tl-first-meet",
+      "date": "2022-09-17",
+      "title": "第一次见面",
+      "description": "一个普通周末，因为一杯咖啡开始变得不普通。我们聊到天色暗下去，像两条原本平行的线忽然有了交点。",
+      "imageUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85",
+      "location": "南京西路咖啡店",
+      "tags": ["first", "daily"]
+    },
+    {
+      "id": "tl-first-date",
+      "date": "2022-10-07",
+      "title": "第一次约会",
+      "description": "看了一场没有记住剧情的电影，却记住了散场后并肩走过的那条路。",
+      "imageUrl": "https://images.unsplash.com/photo-1517602302552-471fe67acf66?auto=format&fit=crop&w=1200&q=85",
+      "location": "环贸影城",
+      "tags": ["first", "date"]
+    },
+    {
+      "id": "tl-anniversary",
+      "date": "2023-10-07",
+      "title": "一周年",
+      "description": "没有夸张的仪式，只有晚餐、散步、花和一张认真拍下的合照。",
+      "imageUrl": "https://images.unsplash.com/photo-1513279922550-250c2129b13a?auto=format&fit=crop&w=1200&q=85",
+      "location": "外滩",
+      "tags": ["anniversary", "date"]
+    },
+    {
+      "id": "tl-trip",
+      "date": "2024-05-02",
+      "title": "海边旅行",
+      "description": "一起早起看日出，在退潮后的沙滩上留下两串脚印。",
+      "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
+      "location": "厦门",
+      "tags": ["travel"]
+    },
+    {
+      "id": "tl-gift-watch",
+      "date": "2024-12-24",
+      "title": "圣诞礼物",
+      "description": "一块简洁的腕表。她戴上以后说，终于有一件东西可以提醒我们慢一点。",
+      "imageUrl": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=85",
+      "location": "家",
+      "tags": ["gift"]
+    },
+    {
+      "id": "tl-rain",
+      "date": "2025-03-21",
+      "title": "雨天晚饭",
+      "description": "临时决定吃一碗热汤面。没有特别的理由，但那天我们都觉得被照顾到了。",
+      "imageUrl": "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?auto=format&fit=crop&w=1200&q=85",
+      "location": "街角小店",
+      "tags": ["daily", "food"]
+    }
+  ],
+  "photos": [
+    {
+      "id": "ph-01",
+      "date": "2022-10-07",
+      "title": "散场之后",
+      "alt": "电影院外的夜景",
+      "imageUrl": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=85",
+      "location": "上海",
+      "tags": ["date"]
+    },
+    {
+      "id": "ph-02",
+      "date": "2023-04-15",
+      "title": "周末早餐",
+      "alt": "桌上的早餐与咖啡",
+      "imageUrl": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=900&q=85",
+      "location": "家",
+      "tags": ["daily", "food"]
+    },
+    {
+      "id": "ph-03",
+      "date": "2023-10-07",
+      "title": "一周年晚餐",
+      "alt": "餐厅烛光晚餐",
+      "imageUrl": "https://images.unsplash.com/photo-1529563021893-cc83c992d75d?auto=format&fit=crop&w=900&q=85",
+      "location": "外滩",
+      "tags": ["anniversary"]
+    },
+    {
+      "id": "ph-04",
+      "date": "2024-05-02",
+      "title": "海风",
+      "alt": "海边与天空",
+      "imageUrl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85",
+      "location": "厦门",
+      "tags": ["travel"]
+    },
+    {
+      "id": "ph-05",
+      "date": "2024-08-24",
+      "title": "展览下午",
+      "alt": "现代艺术展厅",
+      "imageUrl": "https://images.unsplash.com/photo-1568239566969-770e88a123c7?auto=format&fit=crop&w=900&q=85",
+      "location": "美术馆",
+      "tags": ["date"]
+    },
+    {
+      "id": "ph-06",
+      "date": "2025-01-01",
+      "title": "新年第一天",
+      "alt": "城市清晨",
+      "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=85",
+      "location": "上海",
+      "tags": ["anniversary", "daily"]
+    }
+  ],
+  "anniversaries": [
+    {
+      "id": "ann-love",
+      "title": "在一起纪念日",
+      "date": "2022-10-07",
+      "type": "anniversary",
+      "recurring": "yearly"
+    },
+    {
+      "id": "ann-her-birthday",
+      "title": "Mia 的生日",
+      "date": "1998-07-18",
+      "type": "birthday",
+      "recurring": "yearly",
+      "person": "Mia"
+    },
+    {
+      "id": "ann-his-birthday",
+      "title": "Eric 的生日",
+      "date": "1997-11-26",
+      "type": "birthday",
+      "recurring": "yearly",
+      "person": "Eric"
+    },
+    {
+      "id": "ann-first-trip",
+      "title": "第一次旅行",
+      "date": "2024-05-02",
+      "type": "custom",
+      "recurring": "none"
+    }
+  ],
+  "gifts": [
+    {
+      "id": "gift-watch",
+      "title": "极简腕表",
+      "date": "2024-12-24",
+      "scenario": "圣诞节",
+      "price": 1280,
+      "reaction": "她看了很久，说这个颜色很像冬天的下午。",
+      "imageUrl": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=900&q=85",
+      "tags": ["gift"]
+    },
+    {
+      "id": "gift-book",
+      "title": "一本写满批注的书",
+      "date": "2023-05-20",
+      "scenario": "520",
+      "reaction": "翻到第一条批注时笑了，后来安静地读完了整本。",
+      "imageUrl": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=85",
+      "tags": ["gift", "daily"]
+    },
+    {
+      "id": "gift-flower",
+      "title": "白色郁金香",
+      "date": "2025-03-08",
+      "scenario": "普通周六",
+      "price": 168,
+      "reaction": "她把花放在窗边，拍了三张照片。",
+      "imageUrl": "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=900&q=85",
+      "tags": ["gift", "daily"]
+    }
+  ],
+  "wishes": [
+    {
+      "id": "wish-kyoto",
+      "title": "去京都看枫叶",
+      "category": "place",
+      "description": "住在安静的小旅馆，上午散步，下午喝茶。",
+      "status": "todo",
+      "imageUrl": "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=900&q=85"
+    },
+    {
+      "id": "wish-bistro",
+      "title": "吃一次深夜小酒馆",
+      "category": "food",
+      "description": "不赶时间，只点几道想吃的菜。",
+      "status": "done",
+      "targetDate": "2025-02-14"
+    },
+    {
+      "id": "wish-pottery",
+      "title": "一起做陶艺",
+      "category": "activity",
+      "description": "做两个不必完美但能每天用到的杯子。",
+      "status": "todo"
+    },
+    {
+      "id": "wish-house",
+      "title": "整理一面照片墙",
+      "category": "activity",
+      "description": "挑出一年里最喜欢的十二张照片。",
+      "status": "todo"
+    }
+  ]
+}
