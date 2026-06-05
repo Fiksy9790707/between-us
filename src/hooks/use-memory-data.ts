@@ -9,6 +9,7 @@ import { emptyMemoryData, type MemoryData } from "@/types/memory";
 const STORAGE_KEY = "between-us-memory-data";
 
 const defaultData = seed as MemoryData;
+const initialData = emptyMemoryData(defaultData.profile);
 
 const legacyTagMap: Record<string, string> = {
   first: "第一次",
@@ -35,7 +36,7 @@ type Entity = EntityMap[CollectionKey];
 type DataSource = "loading" | "cloud" | "mirror" | "local";
 
 export function useMemoryData() {
-  const [data, setData] = useState<MemoryData>(defaultData);
+  const [data, setData] = useState<MemoryData>(initialData);
   const [ready, setReady] = useState(false);
   const [source, setSource] = useState<DataSource>("loading");
 
@@ -99,6 +100,28 @@ export function useMemoryData() {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (source !== "mirror") {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      void readMemoryFromSupabase()
+        .then((mirrorData) => {
+          if (mirrorData) {
+            const migratedData = migrateMemoryData(mirrorData);
+            setData(migratedData);
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedData));
+          }
+        })
+        .catch(() => {
+          return;
+        });
+    }, 30000);
+
+    return () => window.clearInterval(timer);
+  }, [source]);
 
   const persist = useCallback(
     async (nextData: MemoryData) => {

@@ -82,6 +82,7 @@ https://Fiksy9790707.github.io/between-us/
 
 - 镜像站是静态站，只负责展示。
 - 镜像站会用 Supabase publishable/anon key 读取最新数据。
+- 镜像站打开后会定时从 Supabase 刷新内容；主站修改后，镜像站刷新页面或等待一会儿即可看到。
 - 修改、删除、上传图片仍然去 Vercel 主站 `/admin`。
 - 不要把 `SUPABASE_SERVICE_ROLE_KEY` 放到 GitHub Pages 或前端环境变量里。
 
