@@ -190,7 +190,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
 };
 
 export function AdminDashboard() {
-  const { data, source, actions } = useMemoryData();
+  const { data, ready, source, actions } = useMemoryData();
   const [active, setActive] = useState<CollectionKey>("timeline");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>(emptyDraft.timeline);
@@ -209,6 +209,10 @@ export function AdminDashboard() {
       ...data.gifts.flatMap((item) => item.tags)
     ]);
   }, [data.gifts, data.photos, data.timeline]);
+
+  if (!ready) {
+    return <AdminDashboardSkeleton />;
+  }
 
   function startCreate(key = active) {
     setActive(key);
@@ -368,6 +372,63 @@ export function AdminDashboard() {
         onImport={handleBulkImport}
         onOpenChange={setBulkOpen}
       />
+    </section>
+  );
+}
+
+function AdminDashboardSkeleton() {
+  return (
+    <section className="container space-y-5 pb-12">
+      <Card>
+        <CardHeader>
+          <div className="h-6 w-28 animate-pulse rounded bg-muted" />
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2">
+            {[0, 1, 2, 3].map((item) => (
+              <div key={item} className={item === 3 ? "md:col-span-2" : ""}>
+                <div className="h-4 w-20 animate-pulse rounded bg-muted" />
+                <div className="mt-2 h-10 animate-pulse rounded-md bg-muted" />
+              </div>
+            ))}
+            <div className="md:col-span-2">
+              <div className="h-10 w-40 animate-pulse rounded-md bg-muted" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="h-20 animate-pulse rounded-lg border bg-muted" />
+
+      <Card>
+        <CardHeader className="flex flex-col items-start justify-between gap-3 space-y-0 sm:flex-row sm:items-center">
+          <div className="h-6 w-32 animate-pulse rounded bg-muted" />
+          <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="h-9 w-24 animate-pulse rounded-md bg-muted" />
+            ))}
+          </div>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {[0, 1, 2].map((item) => (
+            <div
+              key={item}
+              className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[72px_1fr_auto]"
+            >
+              <div className="hidden size-[72px] animate-pulse rounded-md bg-muted sm:block" />
+              <div className="min-w-0 space-y-2">
+                <div className="h-5 w-40 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-28 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-full animate-pulse rounded bg-muted" />
+              </div>
+              <div className="flex items-center gap-2 sm:justify-end">
+                <div className="size-9 animate-pulse rounded-md bg-muted" />
+                <div className="size-9 animate-pulse rounded-md bg-muted" />
+              </div>
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     </section>
   );
 }

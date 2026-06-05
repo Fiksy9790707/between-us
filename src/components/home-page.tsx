@@ -11,7 +11,12 @@ import { Badge } from "@/components/ui/badge";
 import { MemoryImage } from "@/components/memory-image";
 
 export function HomePage() {
-  const { data } = useMemoryData();
+  const { data, ready } = useMemoryData();
+
+  if (!ready) {
+    return <HomePageSkeleton />;
+  }
+
   const days = daysBetween(data.profile.startedAt);
   const featured = data.timeline.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
 
@@ -115,6 +120,61 @@ export function HomePage() {
                 <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
                   {item.description}
                 </p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </section>
+    </>
+  );
+}
+
+function HomePageSkeleton() {
+  return (
+    <>
+      <section className="container grid min-h-[calc(100vh-4rem)] items-center gap-10 py-8 md:grid-cols-[1fr_0.9fr] md:py-12">
+        <div className="max-w-2xl animate-pulse">
+          <div className="h-7 w-24 rounded-full bg-muted" />
+          <div className="mt-5 h-14 w-4/5 rounded-lg bg-muted md:h-20" />
+          <div className="mt-4 h-6 w-full rounded bg-muted" />
+          <div className="mt-3 h-6 w-2/3 rounded bg-muted" />
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <div className="h-10 w-full rounded-md bg-muted sm:w-36" />
+            <div className="h-10 w-full rounded-md bg-muted sm:w-32" />
+          </div>
+          <div className="mt-10 grid grid-cols-3 gap-3">
+            {[0, 1, 2].map((item) => (
+              <div key={item} className="rounded-lg border bg-card p-4">
+                <div className="h-3 w-14 rounded bg-muted" />
+                <div className="mt-3 h-7 w-16 rounded bg-muted" />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="relative animate-pulse">
+          <div className="relative aspect-[4/5] rounded-lg bg-muted" />
+          <div className="absolute -bottom-5 left-5 right-5 rounded-lg border bg-background/85 p-4 shadow-soft backdrop-blur">
+            <div className="flex items-center justify-between gap-4">
+              <div className="space-y-2">
+                <div className="h-3 w-16 rounded bg-muted" />
+                <div className="h-5 w-28 rounded bg-muted" />
+              </div>
+              <div className="size-5 rounded bg-muted" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section className="container pb-12">
+        <div className="grid gap-4 md:grid-cols-3">
+          {[0, 1, 2].map((item) => (
+            <Card key={item} className="overflow-hidden">
+              <div className="aspect-[5/3] animate-pulse bg-muted" />
+              <CardContent className="space-y-3 pt-5">
+                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
+                <div className="h-5 w-32 animate-pulse rounded bg-muted" />
+                <div className="h-4 w-full animate-pulse rounded bg-muted" />
               </CardContent>
             </Card>
           ))}
