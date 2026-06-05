@@ -60,6 +60,12 @@ export function useMemoryData() {
           [key]: current[key].filter((entry) => entry.id !== id)
         }));
       },
+      updateProfile(profile: MemoryData["profile"]) {
+        setData((current) => ({
+          ...current,
+          profile
+        }));
+      },
       reset() {
         setData(defaultData);
         window.localStorage.removeItem(STORAGE_KEY);

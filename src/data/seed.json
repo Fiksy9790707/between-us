@@ -2,7 +2,7 @@
   "profile": {
     "names": {
       "personA": "Eric",
-      "personB": "Mia"
+      "personB": "Cindy"
     },
     "startedAt": "2022-10-07",
     "statement": "把认真生活的每一天，安静地放进同一个时间轴。"
@@ -129,11 +129,11 @@
     },
     {
       "id": "ann-her-birthday",
-      "title": "Mia 的生日",
+      "title": "Cindy 的生日",
       "date": "1998-07-18",
       "type": "birthday",
       "recurring": "yearly",
-      "person": "Mia"
+      "person": "Cindy"
     },
     {
       "id": "ann-his-birthday",

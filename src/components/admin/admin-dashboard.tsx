@@ -2,9 +2,9 @@
 
 import Image from "next/image";
 import { Edit3, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useMemoryData, type CollectionKey } from "@/hooks/use-memory-data";
-import type { MemoryData, Tag } from "@/types/memory";
+import type { MemoryData, Profile, Tag } from "@/types/memory";
 import { tagOptions } from "@/lib/constants";
 import { createId } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -204,8 +204,10 @@ export function AdminDashboard() {
   }
 
   return (
-    <section className="container pb-12">
-      <div className="mb-5 rounded-lg border bg-accent/60 p-4 text-sm leading-6 text-accent-foreground">
+    <section className="container space-y-5 pb-12">
+      <ProfileSettings profile={data.profile} onSave={actions.updateProfile} />
+
+      <div className="rounded-lg border bg-accent/60 p-4 text-sm leading-6 text-accent-foreground">
         当前数据保存在浏览器 localStorage。部署到 Vercel 后无需数据库即可使用；未来迁移时可把
         <code className="mx-1 rounded bg-background px-1.5 py-0.5">useMemoryData</code>
         替换为 Supabase/PostgreSQL 的数据访问层。
@@ -239,13 +241,20 @@ export function AdminDashboard() {
                         key={field.name}
                         field={field}
                         value={draft[field.name] ?? ""}
-                        onChange={(value) => setDraft((current) => ({ ...current, [field.name]: value }))}
+                        onChange={(value) =>
+                          setDraft((current) => ({ ...current, [field.name]: value }))
+                        }
                       />
                     ))}
                     {hasTags(key) ? (
                       <p className="text-xs text-muted-foreground">
                         可用标签：
                         {tagOptions.map((item) => `${item.value}=${item.label}`).join(" · ")}
+                      </p>
+                    ) : null}
+                    {key === "photos" ? (
+                      <p className="text-xs text-muted-foreground">
+                        新增照片时填入图片 URL；列表右侧的删除按钮可以移除照片。
                       </p>
                     ) : null}
                     <div className="flex gap-2">
@@ -307,6 +316,74 @@ export function AdminDashboard() {
         ))}
       </Tabs>
     </section>
+  );
+}
+
+function ProfileSettings({
+  profile,
+  onSave
+}: {
+  profile: Profile;
+  onSave: (profile: Profile) => void;
+}) {
+  const [draft, setDraft] = useState(profile);
+
+  useEffect(() => {
+    setDraft(profile);
+  }, [profile]);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    onSave(draft);
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>基础设置</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <form className="grid gap-4 md:grid-cols-2" onSubmit={handleSubmit}>
+          <Field
+            field={{ name: "personA", label: "你的名字" }}
+            value={draft.names.personA}
+            onChange={(value) =>
+              setDraft((current) => ({
+                ...current,
+                names: { ...current.names, personA: value }
+              }))
+            }
+          />
+          <Field
+            field={{ name: "personB", label: "她的名字" }}
+            value={draft.names.personB}
+            onChange={(value) =>
+              setDraft((current) => ({
+                ...current,
+                names: { ...current.names, personB: value }
+              }))
+            }
+          />
+          <Field
+            field={{ name: "startedAt", label: "恋爱开始日期", type: "date" }}
+            value={draft.startedAt}
+            onChange={(value) => setDraft((current) => ({ ...current, startedAt: value }))}
+          />
+          <div className="md:col-span-2">
+            <Field
+              field={{ name: "statement", label: "首页文案", type: "textarea" }}
+              value={draft.statement}
+              onChange={(value) => setDraft((current) => ({ ...current, statement: value }))}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <Button type="submit">
+              <Save /> 保存基础设置
+            </Button>
+          </div>
+        </form>
+      </CardContent>
+    </Card>
   );
 }
 
