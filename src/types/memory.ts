@@ -7,6 +7,7 @@ export type Profile = {
   };
   startedAt: string;
   statement: string;
+  coverImageUrl?: string;
 };
 
 export type TimelineEvent = {
@@ -59,6 +60,13 @@ export type WishItem = {
   imageUrl?: string;
 };
 
+export type LoveNote = {
+  id: string;
+  date: string;
+  content: string;
+  author?: string;
+};
+
 export type MemoryData = {
   profile: Profile;
   timeline: TimelineEvent[];
@@ -66,6 +74,7 @@ export type MemoryData = {
   anniversaries: Anniversary[];
   gifts: Gift[];
   wishes: WishItem[];
+  notes: LoveNote[];
 };
 
 export function emptyMemoryData(profile: Profile): MemoryData {
@@ -75,6 +84,7 @@ export function emptyMemoryData(profile: Profile): MemoryData {
     photos: [],
     anniversaries: [],
     gifts: [],
-    wishes: []
+    wishes: [],
+    notes: []
   };
 }

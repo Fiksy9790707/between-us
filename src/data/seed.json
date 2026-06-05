@@ -5,7 +5,8 @@
       "personB": "Cindy"
     },
     "startedAt": "2022-10-07",
-    "statement": "把认真生活的每一天，安静地放进同一个时间轴。"
+    "statement": "把认真生活的每一天，安静地放进同一个时间轴。",
+    "coverImageUrl": ""
   },
   "timeline": [
     {
@@ -212,6 +213,14 @@
       "category": "activity",
       "description": "挑出一年里最喜欢的十二张照片。",
       "status": "todo"
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-first",
+      "date": "2026-06-06",
+      "content": "今天也想把普通的一天好好收起来。",
+      "author": "Eric"
     }
   ]
 }

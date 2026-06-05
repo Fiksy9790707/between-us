@@ -25,7 +25,7 @@ const legacyTagMap: Record<string, string> = {
   food: "美食"
 };
 
-export type CollectionKey = "timeline" | "photos" | "anniversaries" | "gifts" | "wishes";
+export type CollectionKey = "timeline" | "photos" | "anniversaries" | "gifts" | "wishes" | "notes";
 
 type EntityMap = {
   timeline: MemoryData["timeline"][number];
@@ -33,6 +33,7 @@ type EntityMap = {
   anniversaries: MemoryData["anniversaries"][number];
   gifts: MemoryData["gifts"][number];
   wishes: MemoryData["wishes"][number];
+  notes: MemoryData["notes"][number];
 };
 
 type Entity = EntityMap[CollectionKey];
@@ -221,18 +222,25 @@ export function useMemoryData() {
 function migrateMemoryData(data: MemoryData): MemoryData {
   return {
     ...data,
-    timeline: data.timeline.map((item) => ({
+    profile: {
+      ...data.profile,
+      coverImageUrl: data.profile.coverImageUrl ?? ""
+    },
+    timeline: (data.timeline ?? []).map((item) => ({
       ...item,
       tags: migrateTags(item.tags)
     })),
-    photos: data.photos.map((item) => ({
+    photos: (data.photos ?? []).map((item) => ({
       ...item,
       tags: migrateTags(item.tags)
     })),
-    gifts: data.gifts.map((item) => ({
+    gifts: (data.gifts ?? []).map((item) => ({
       ...item,
       tags: migrateTags(item.tags)
-    }))
+    })),
+    anniversaries: data.anniversaries ?? [],
+    wishes: data.wishes ?? [],
+    notes: data.notes ?? []
   };
 }
 

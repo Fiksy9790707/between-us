@@ -143,6 +143,15 @@ const entityConfig: Record<
       { name: "targetDate", label: "完成日期", type: "date" },
       { name: "imageUrl", label: "图片 URL" }
     ]
+  },
+  notes: {
+    label: "小纸条",
+    prefix: "note",
+    fields: [
+      { name: "date", label: "日期", type: "date" },
+      { name: "author", label: "署名" },
+      { name: "content", label: "内容", type: "textarea" }
+    ]
   }
 };
 
@@ -186,6 +195,11 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
     description: "",
     targetDate: "",
     imageUrl: ""
+  },
+  notes: {
+    date: "",
+    author: "",
+    content: ""
   }
 };
 
@@ -198,7 +212,7 @@ export function AdminDashboard() {
   const [bulkOpen, setBulkOpen] = useState(false);
 
   const collection = useMemo(() => {
-    return data[active] as Array<Record<string, unknown> & { id: string; title: string }>;
+    return data[active] as Array<Record<string, unknown> & { id: string }>;
   }, [active, data]);
 
   const availableTags = useMemo(() => {
@@ -323,9 +337,11 @@ export function AdminDashboard() {
                   >
                     <PreviewImage item={item} />
                     <div className="min-w-0">
-                      <p className="truncate font-medium">{item.title}</p>
+                      <p className="truncate font-medium">
+                        {String(item.title ?? item.content ?? "小纸条")}
+                      </p>
                       <p className="mt-1 truncate text-sm text-muted-foreground">
-                        {String(item.date ?? item.category ?? item.type ?? "")}
+                        {String(item.date ?? item.category ?? item.type ?? item.author ?? "")}
                       </p>
                       <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
                         {String(item.description ?? item.reaction ?? item.scenario ?? "")}
@@ -698,6 +714,17 @@ function ProfileSettings({
             />
           </div>
           <div className="md:col-span-2">
+            <ImageValueField
+              value={draft.coverImageUrl ?? ""}
+              onChange={(value) =>
+                setDraft((current) => ({ ...current, coverImageUrl: value }))
+              }
+            />
+            <p className="mt-2 text-xs text-muted-foreground">
+              这张图会优先作为首页右侧封面；留空时会使用最新时间线图片。
+            </p>
+          </div>
+          <div className="md:col-span-2">
             <Button type="submit">
               <Save /> 保存基础设置
             </Button>
@@ -834,6 +861,15 @@ function normalizePayload(
       status: draft.status as "todo" | "done",
       targetDate: draft.targetDate || undefined,
       imageUrl: draft.imageUrl || undefined
+    };
+  }
+
+  if (key === "notes") {
+    return {
+      id,
+      date: draft.date || todayDateString(),
+      content: draft.content,
+      author: draft.author || undefined
     };
   }
 

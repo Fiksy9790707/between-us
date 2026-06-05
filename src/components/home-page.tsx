@@ -2,16 +2,19 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ArrowRight, CalendarDays, Camera, MapPin } from "lucide-react";
+import { type FormEvent, useState } from "react";
+import { ArrowRight, CalendarDays, Camera, Heart, MapPin, Send } from "lucide-react";
 import { useMemoryData } from "@/hooks/use-memory-data";
-import { daysBetween, formatDate } from "@/lib/utils";
+import { createId, daysBetween, formatDate, todayDateString } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { MemoryImage } from "@/components/memory-image";
+import { Textarea } from "@/components/ui/textarea";
 
 export function HomePage() {
-  const { data, ready } = useMemoryData();
+  const { data, ready, actions } = useMemoryData();
+  const [noteDraft, setNoteDraft] = useState("");
 
   if (!ready) {
     return <HomePageSkeleton />;
@@ -19,6 +22,23 @@ export function HomePage() {
 
   const days = daysBetween(data.profile.startedAt);
   const featured = data.timeline.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
+  const coverImageUrl = data.profile.coverImageUrl || featured?.imageUrl;
+  const latestNote = data.notes.slice().sort((a, b) => b.date.localeCompare(a.date))[0];
+
+  function submitNote(event: FormEvent) {
+    event.preventDefault();
+    const content = noteDraft.trim();
+    if (!content) {
+      return;
+    }
+    actions.upsert("notes", {
+      id: createId("note"),
+      date: todayDateString(),
+      content,
+      author: data.profile.names.personA || undefined
+    });
+    setNoteDraft("");
+  }
 
   return (
     <>
@@ -60,24 +80,32 @@ export function HomePage() {
           className="relative"
         >
           <div className="absolute -inset-4 rounded-[2rem] bg-gradient-to-br from-amber-100/60 via-transparent to-neutral-200/80 blur-2xl dark:from-amber-500/10 dark:to-white/5" />
-          {featured ? (
+          {coverImageUrl ? (
             <Card className="relative overflow-hidden rounded-lg">
               <div className="relative aspect-[4/5]">
                 <MemoryImage
-                  src={featured.imageUrl}
-                  alt={featured.title}
+                  src={coverImageUrl}
+                  alt={featured?.title ?? "首页封面"}
                   fill
                   priority
                   sizes="(min-width: 768px) 45vw, 100vw"
                   className="object-cover"
                 />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/65 to-transparent p-5 text-white">
-                  <p className="text-sm opacity-80">{formatDate(featured.date)}</p>
-                  <h2 className="mt-1 text-2xl font-semibold">{featured.title}</h2>
-                  <div className="mt-3 flex items-center gap-2 text-sm opacity-85">
-                    <MapPin className="size-4" />
-                    {featured.location}
-                  </div>
+                  <p className="text-sm opacity-80">
+                    {data.profile.coverImageUrl ? "Cover" : featured ? formatDate(featured.date) : "Between Us"}
+                  </p>
+                  <h2 className="mt-1 text-2xl font-semibold">
+                    {data.profile.coverImageUrl
+                      ? `${data.profile.names.personA} & ${data.profile.names.personB}`
+                      : featured?.title}
+                  </h2>
+                  {featured && !data.profile.coverImageUrl ? (
+                    <div className="mt-3 flex items-center gap-2 text-sm opacity-85">
+                      <MapPin className="size-4" />
+                      {featured.location}
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </Card>
@@ -102,6 +130,48 @@ export function HomePage() {
             </div>
           </motion.div>
         </motion.div>
+      </section>
+
+      <section className="container grid gap-4 pb-8 md:grid-cols-[0.9fr_1.1fr]">
+        <Card>
+          <CardContent className="p-5">
+            <div className="flex items-center gap-2 text-sm font-medium">
+              <Heart className="size-4 fill-rose-500 text-rose-500" />
+              最新小纸条
+            </div>
+            {latestNote ? (
+              <>
+                <p className="mt-4 text-lg leading-8">{latestNote.content}</p>
+                <p className="mt-3 text-xs text-muted-foreground">
+                  {formatDate(latestNote.date)}
+                  {latestNote.author ? ` · ${latestNote.author}` : ""}
+                </p>
+              </>
+            ) : (
+              <p className="mt-4 text-sm leading-6 text-muted-foreground">
+                还没有小纸条。写下第一句就好。
+              </p>
+            )}
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="p-5">
+            <form className="space-y-3" onSubmit={submitNote}>
+              <Textarea
+                value={noteDraft}
+                placeholder="写一句今天想留给对方的话"
+                className="min-h-24 resize-none"
+                onChange={(event) => setNoteDraft(event.target.value)}
+              />
+              <div className="flex justify-end">
+                <Button type="submit" disabled={!noteDraft.trim()}>
+                  <Send /> 保存纸条
+                </Button>
+              </div>
+            </form>
+          </CardContent>
+        </Card>
       </section>
 
       <section className="container pb-12">
