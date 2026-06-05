@@ -31,6 +31,7 @@ export async function GET() {
 
   return NextResponse.json({
     cloudEnabled: true,
+    initialized: Boolean(data?.data),
     data: (data?.data as MemoryData | undefined) ?? seed
   });
 }

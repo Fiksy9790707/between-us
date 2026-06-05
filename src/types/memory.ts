@@ -67,3 +67,14 @@ export type MemoryData = {
   gifts: Gift[];
   wishes: WishItem[];
 };
+
+export function emptyMemoryData(profile: Profile): MemoryData {
+  return {
+    profile,
+    timeline: [],
+    photos: [],
+    anniversaries: [],
+    gifts: [],
+    wishes: []
+  };
+}

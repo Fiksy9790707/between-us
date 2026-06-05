@@ -281,8 +281,19 @@ export function AdminDashboard() {
               <CardHeader className="flex flex-col items-start justify-between gap-3 space-y-0 sm:flex-row sm:items-center">
                 <CardTitle>{entityConfig[key].label}列表</CardTitle>
                 <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (window.confirm("确定要清空所有示例内容吗？基础设置会保留。")) {
+                        actions.clearAll();
+                      }
+                    }}
+                  >
+                    <Trash2 /> 清空内容
+                  </Button>
                   <Button variant="outline" size="sm" onClick={actions.reset}>
-                    <RotateCcw /> 重置示例
+                    <RotateCcw /> 恢复示例
                   </Button>
                   {key === "photos" ? (
                     <Button variant="outline" size="sm" onClick={() => setBulkOpen(true)}>

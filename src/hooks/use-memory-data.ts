@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import seed from "@/data/seed.json";
 import { requestAdminCode } from "@/lib/admin-access";
-import type { MemoryData } from "@/types/memory";
+import { emptyMemoryData, type MemoryData } from "@/types/memory";
 
 const STORAGE_KEY = "between-us-memory-data";
 
@@ -93,7 +93,7 @@ export function useMemoryData() {
 
       const code = requestAdminCode();
       if (!code) {
-        return;
+        throw new Error("Missing admin code.");
       }
 
       const response = await fetch("/api/memory", {
@@ -163,6 +163,9 @@ export function useMemoryData() {
       },
       reset() {
         updateData(() => defaultData);
+      },
+      clearAll() {
+        updateData((current) => emptyMemoryData(current.profile));
       }
     }),
     [updateData]
