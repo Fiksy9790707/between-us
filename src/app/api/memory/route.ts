@@ -9,6 +9,7 @@ import {
 } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-static";
 
 export async function GET() {
   if (!isSupabaseConfigured()) {

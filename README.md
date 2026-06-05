@@ -53,6 +53,7 @@ service_role key
 
 ```bash
 NEXT_PUBLIC_SUPABASE_URL=你的 Project URL
+NEXT_PUBLIC_SUPABASE_ANON_KEY=你的 publishable key
 SUPABASE_SERVICE_ROLE_KEY=你的 service_role key
 SUPABASE_STORAGE_BUCKET=between-us-images
 BETWEEN_US_ADMIN_CODE=你和 Cindy 共享的管理密码
@@ -62,6 +63,36 @@ NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
 6. 重新部署 Vercel。
 
 `BETWEEN_US_ADMIN_CODE` 用来保护修改和上传图片。你和 Cindy 第一次保存内容或上传图片时，在浏览器里输入这个密码即可。
+
+## GitHub Pages 静态镜像
+
+这个项目包含 GitHub Pages 镜像 workflow：
+
+```txt
+.github/workflows/pages.yml
+```
+
+镜像地址预计是：
+
+```txt
+https://Fiksy9790707.github.io/between-us/
+```
+
+镜像站适合国内访问不稳定时浏览内容。注意：
+
+- 镜像站是静态站，只负责展示。
+- 镜像站会用 Supabase publishable/anon key 读取最新数据。
+- 修改、删除、上传图片仍然去 Vercel 主站 `/admin`。
+- 不要把 `SUPABASE_SERVICE_ROLE_KEY` 放到 GitHub Pages 或前端环境变量里。
+
+启用镜像前，在 GitHub 仓库里添加 Actions Secrets：
+
+```txt
+NEXT_PUBLIC_SUPABASE_URL=https://你的项目id.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=你的 publishable key
+```
+
+然后在 GitHub 仓库 Settings -> Pages 里选择 GitHub Actions。之后 push 到 main 会自动部署镜像。
 
 ## 数据和图片
 
@@ -113,6 +144,24 @@ npm run build
 
 5. 添加上面的 Supabase 环境变量。
 6. 点击 Deploy。
+
+## 国内可访问且可修改
+
+如果你需要像作品集镜像一样在国内更稳定访问，并且还要能修改内容，不建议只用 GitHub Pages，因为它不能安全运行后端 API。
+
+推荐把同一个 Next.js 项目部署到腾讯云轻量应用服务器、阿里云 ECS 或其他国内/近国内服务器。项目已提供：
+
+```txt
+Dockerfile
+ecosystem.config.cjs
+docs/domestic-deploy.md
+```
+
+服务器和 Vercel 填同一套 Supabase 环境变量，就会共用同一份数据。详细步骤见：
+
+```txt
+docs/domestic-deploy.md
+```
 
 ## 常用命令
 

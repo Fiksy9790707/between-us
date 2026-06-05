@@ -260,8 +260,14 @@ export function AdminDashboard() {
 
       <div className="rounded-lg border bg-accent/60 p-4 text-sm leading-6 text-accent-foreground">
         当前模式：
-        <strong className="mx-1">{source === "cloud" ? "Supabase 云端同步" : "本地备用模式"}</strong>
-        。云端模式下，你和 Cindy 在不同设备上修改后都会写入同一份数据库；上传图片会保存到 Supabase Storage。
+        <strong className="mx-1">
+          {source === "cloud"
+            ? "Supabase 云端同步"
+            : source === "mirror"
+              ? "静态镜像只读"
+              : "本地备用模式"}
+        </strong>
+        。云端模式下，你和 Cindy 在不同设备上修改后都会写入同一份数据库；镜像站只负责展示，管理内容请回到 Vercel 主站。
       </div>
 
       <Tabs value={active} defaultValue="timeline" onValueChange={handleTabChange}>

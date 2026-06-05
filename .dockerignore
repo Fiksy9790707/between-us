@@ -1,0 +1,11 @@
+node_modules
+.next
+out
+.git
+.github
+.vercel
+.npm-cache
+*.log
+.env
+.env*.local
+tsconfig.tsbuildinfo

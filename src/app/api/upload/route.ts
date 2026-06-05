@@ -7,6 +7,7 @@ import {
 } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
+export const dynamic = "force-static";
 
 export async function POST(request: Request) {
   if (!isSupabaseConfigured()) {

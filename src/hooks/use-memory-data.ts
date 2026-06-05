@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import seed from "@/data/seed.json";
 import { requestAdminCode } from "@/lib/admin-access";
+import { isStaticMirror, readMemoryFromSupabase } from "@/lib/supabase/browser";
 import { emptyMemoryData, type MemoryData } from "@/types/memory";
 
 const STORAGE_KEY = "between-us-memory-data";
@@ -31,7 +32,7 @@ type EntityMap = {
 };
 
 type Entity = EntityMap[CollectionKey];
-type DataSource = "loading" | "cloud" | "local";
+type DataSource = "loading" | "cloud" | "mirror" | "local";
 
 export function useMemoryData() {
   const [data, setData] = useState<MemoryData>(defaultData);
@@ -42,6 +43,22 @@ export function useMemoryData() {
     let cancelled = false;
 
     async function loadData() {
+      if (isStaticMirror()) {
+        try {
+          const mirrorData = await readMemoryFromSupabase();
+          if (!cancelled && mirrorData) {
+            const migratedData = migrateMemoryData(mirrorData);
+            setData(migratedData);
+            setSource("mirror");
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedData));
+            setReady(true);
+            return;
+          }
+        } catch {
+          // Fall through to local data.
+        }
+      }
+
       try {
         const response = await fetch("/api/memory", { cache: "no-store" });
         if (response.ok) {
@@ -88,6 +105,9 @@ export function useMemoryData() {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
 
       if (source !== "cloud") {
+        if (source === "mirror") {
+          window.alert("这是静态镜像站，只用于浏览。请回到 Vercel 主站管理内容。");
+        }
         return;
       }
 

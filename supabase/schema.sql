@@ -7,12 +7,13 @@ create table if not exists public.memory_state (
 alter table public.memory_state enable row level security;
 
 drop policy if exists "memory_state_read_disabled" on public.memory_state;
+drop policy if exists "memory_state_public_read" on public.memory_state;
 drop policy if exists "memory_state_write_disabled" on public.memory_state;
 
-create policy "memory_state_read_disabled"
+create policy "memory_state_public_read"
 on public.memory_state
 for select
-using (false);
+using (true);
 
 create policy "memory_state_write_disabled"
 on public.memory_state
