@@ -1,6 +1,7 @@
 "use client";
 
 import { readFileAsDataUrl } from "@/lib/file";
+import { uploadImageToSupabase } from "@/lib/supabase/browser";
 
 export async function saveImageFile(file: File) {
   const formData = new FormData();
@@ -19,6 +20,10 @@ export async function saveImageFile(file: File) {
     const payload = (await response.json()) as { url: string };
     return payload.url;
   } catch {
-    return readFileAsDataUrl(file);
+    try {
+      return await uploadImageToSupabase(file);
+    } catch {
+      return readFileAsDataUrl(file);
+    }
   }
 }

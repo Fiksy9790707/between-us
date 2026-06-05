@@ -49,3 +49,16 @@ grant execute on function public.save_memory_state(jsonb) to anon, authenticated
 insert into storage.buckets (id, name, public)
 values ('between-us-images', 'between-us-images', true)
 on conflict (id) do update set public = true;
+
+drop policy if exists "between_us_images_public_read" on storage.objects;
+drop policy if exists "between_us_images_public_insert" on storage.objects;
+
+create policy "between_us_images_public_read"
+on storage.objects
+for select
+using (bucket_id = 'between-us-images');
+
+create policy "between_us_images_public_insert"
+on storage.objects
+for insert
+with check (bucket_id = 'between-us-images');
