@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import seed from "@/data/seed.json";
-import { requestAdminCode } from "@/lib/admin-access";
+import { clearAdminCode, requestAdminCode } from "@/lib/admin-access";
 import {
   isStaticMirror,
   readMemoryFromSupabase,
@@ -170,7 +170,8 @@ export function useMemoryData() {
       setData((current) => {
         const nextData = updater(current);
         void persist(nextData).catch(() => {
-          window.alert("云端保存失败。请检查管理密码、Supabase 配置或网络状态。");
+          clearAdminCode();
+          window.alert("云端保存失败。已清除这台设备保存的管理密码，请重试并输入最新密码。");
         });
         return nextData;
       });
