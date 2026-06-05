@@ -37,3 +37,22 @@ export async function readMemoryFromSupabase() {
 
   return (data?.data as MemoryData | undefined) ?? null;
 }
+
+export async function writeMemoryToSupabase(nextData: MemoryData, adminCode: string) {
+  const supabase = createSupabaseBrowserClient();
+
+  if (!supabase) {
+    throw new Error("Supabase browser client is not configured.");
+  }
+
+  const { data, error } = await supabase.rpc("save_memory_state", {
+    p_admin_code: adminCode,
+    p_data: nextData
+  });
+
+  if (error) {
+    throw error;
+  }
+
+  return (data as MemoryData | null) ?? nextData;
+}

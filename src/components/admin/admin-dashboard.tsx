@@ -268,10 +268,10 @@ export function AdminDashboard() {
           {source === "cloud"
             ? "Supabase 云端同步"
             : source === "mirror"
-              ? "静态镜像只读"
+              ? "国内镜像同步"
               : "本地备用模式"}
         </strong>
-        。云端模式下，你在不同设备上修改后都会写入同一份数据库；镜像站只负责展示，管理内容请回到 Vercel 主站。
+        。云端模式下，你在不同设备上修改后都会写入同一份数据库；国内镜像站也可以通过共享管理码同步修改。
       </div>
 
       <Tabs value={active} defaultValue="timeline" onValueChange={handleTabChange}>

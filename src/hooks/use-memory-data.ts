@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import seed from "@/data/seed.json";
 import { requestAdminCode } from "@/lib/admin-access";
-import { isStaticMirror, readMemoryFromSupabase } from "@/lib/supabase/browser";
+import {
+  isStaticMirror,
+  readMemoryFromSupabase,
+  writeMemoryToSupabase
+} from "@/lib/supabase/browser";
 import { emptyMemoryData, type MemoryData } from "@/types/memory";
 
 const STORAGE_KEY = "between-us-memory-data";
@@ -127,10 +131,16 @@ export function useMemoryData() {
     async (nextData: MemoryData) => {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
 
-      if (source !== "cloud") {
-        if (source === "mirror") {
-          window.alert("这是静态镜像站，只用于浏览。请回到 Vercel 主站管理内容。");
+      if (source === "mirror") {
+        const code = requestAdminCode();
+        if (!code) {
+          throw new Error("Missing admin code.");
         }
+        await writeMemoryToSupabase(nextData, code);
+        return;
+      }
+
+      if (source !== "cloud") {
         return;
       }
 
