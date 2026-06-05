@@ -15,7 +15,7 @@
       "description": "一个普通周末，因为一杯咖啡开始变得不普通。我们聊到天色暗下去，像两条原本平行的线忽然有了交点。",
       "imageUrl": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=1200&q=85",
       "location": "南京西路咖啡店",
-      "tags": ["first", "daily"]
+      "tags": ["第一次", "日常"]
     },
     {
       "id": "tl-first-date",
@@ -24,7 +24,7 @@
       "description": "看了一场没有记住剧情的电影，却记住了散场后并肩走过的那条路。",
       "imageUrl": "https://images.unsplash.com/photo-1517602302552-471fe67acf66?auto=format&fit=crop&w=1200&q=85",
       "location": "环贸影城",
-      "tags": ["first", "date"]
+      "tags": ["第一次", "约会"]
     },
     {
       "id": "tl-anniversary",
@@ -33,7 +33,7 @@
       "description": "没有夸张的仪式，只有晚餐、散步、花和一张认真拍下的合照。",
       "imageUrl": "https://images.unsplash.com/photo-1513279922550-250c2129b13a?auto=format&fit=crop&w=1200&q=85",
       "location": "外滩",
-      "tags": ["anniversary", "date"]
+      "tags": ["纪念日", "约会"]
     },
     {
       "id": "tl-trip",
@@ -42,7 +42,7 @@
       "description": "一起早起看日出，在退潮后的沙滩上留下两串脚印。",
       "imageUrl": "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=85",
       "location": "厦门",
-      "tags": ["travel"]
+      "tags": ["旅行"]
     },
     {
       "id": "tl-gift-watch",
@@ -51,7 +51,7 @@
       "description": "一块简洁的腕表。她戴上以后说，终于有一件东西可以提醒我们慢一点。",
       "imageUrl": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=1200&q=85",
       "location": "家",
-      "tags": ["gift"]
+      "tags": ["礼物"]
     },
     {
       "id": "tl-rain",
@@ -60,7 +60,7 @@
       "description": "临时决定吃一碗热汤面。没有特别的理由，但那天我们都觉得被照顾到了。",
       "imageUrl": "https://images.unsplash.com/photo-1543352634-a1c51d9f1fa7?auto=format&fit=crop&w=1200&q=85",
       "location": "街角小店",
-      "tags": ["daily", "food"]
+      "tags": ["日常", "美食"]
     }
   ],
   "photos": [
@@ -71,7 +71,7 @@
       "alt": "电影院外的夜景",
       "imageUrl": "https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=900&q=85",
       "location": "上海",
-      "tags": ["date"]
+      "tags": ["约会"]
     },
     {
       "id": "ph-02",
@@ -80,7 +80,7 @@
       "alt": "桌上的早餐与咖啡",
       "imageUrl": "https://images.unsplash.com/photo-1504754524776-8f4f37790ca0?auto=format&fit=crop&w=900&q=85",
       "location": "家",
-      "tags": ["daily", "food"]
+      "tags": ["日常", "美食"]
     },
     {
       "id": "ph-03",
@@ -89,7 +89,7 @@
       "alt": "餐厅烛光晚餐",
       "imageUrl": "https://images.unsplash.com/photo-1529563021893-cc83c992d75d?auto=format&fit=crop&w=900&q=85",
       "location": "外滩",
-      "tags": ["anniversary"]
+      "tags": ["纪念日"]
     },
     {
       "id": "ph-04",
@@ -98,7 +98,7 @@
       "alt": "海边与天空",
       "imageUrl": "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85",
       "location": "厦门",
-      "tags": ["travel"]
+      "tags": ["旅行"]
     },
     {
       "id": "ph-05",
@@ -107,7 +107,7 @@
       "alt": "现代艺术展厅",
       "imageUrl": "https://images.unsplash.com/photo-1568239566969-770e88a123c7?auto=format&fit=crop&w=900&q=85",
       "location": "美术馆",
-      "tags": ["date"]
+      "tags": ["约会"]
     },
     {
       "id": "ph-06",
@@ -116,7 +116,7 @@
       "alt": "城市清晨",
       "imageUrl": "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?auto=format&fit=crop&w=900&q=85",
       "location": "上海",
-      "tags": ["anniversary", "daily"]
+      "tags": ["纪念日", "日常"]
     }
   ],
   "anniversaries": [
@@ -160,7 +160,7 @@
       "price": 1280,
       "reaction": "她看了很久，说这个颜色很像冬天的下午。",
       "imageUrl": "https://images.unsplash.com/photo-1523170335258-f5ed11844a49?auto=format&fit=crop&w=900&q=85",
-      "tags": ["gift"]
+      "tags": ["礼物"]
     },
     {
       "id": "gift-book",
@@ -169,7 +169,7 @@
       "scenario": "520",
       "reaction": "翻到第一条批注时笑了，后来安静地读完了整本。",
       "imageUrl": "https://images.unsplash.com/photo-1519682337058-a94d519337bc?auto=format&fit=crop&w=900&q=85",
-      "tags": ["gift", "daily"]
+      "tags": ["礼物", "日常"]
     },
     {
       "id": "gift-flower",
@@ -179,7 +179,7 @@
       "price": 168,
       "reaction": "她把花放在窗边，拍了三张照片。",
       "imageUrl": "https://images.unsplash.com/photo-1525310072745-f49212b5ac6d?auto=format&fit=crop&w=900&q=85",
-      "tags": ["gift", "daily"]
+      "tags": ["礼物", "日常"]
     }
   ],
   "wishes": [

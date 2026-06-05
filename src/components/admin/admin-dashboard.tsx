@@ -1,11 +1,26 @@
 "use client";
 
 import Image from "next/image";
-import { Edit3, Plus, RotateCcw, Save, Trash2, X } from "lucide-react";
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  Edit3,
+  Images,
+  Plus,
+  RotateCcw,
+  Save,
+  Trash2,
+  X
+} from "lucide-react";
+import {
+  type Dispatch,
+  type FormEvent,
+  type SetStateAction,
+  useEffect,
+  useMemo,
+  useState
+} from "react";
 import { useMemoryData, type CollectionKey } from "@/hooks/use-memory-data";
-import type { MemoryData, Profile, Tag } from "@/types/memory";
-import { tagOptions } from "@/lib/constants";
+import type { MemoryData, Photo, Profile, Tag } from "@/types/memory";
+import { defaultTags, isChineseTag, uniqueTags } from "@/lib/constants";
 import { createId } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 type FieldConfig = {
   name: string;
   label: string;
-  type?: "text" | "date" | "number" | "textarea" | "select";
+  type?: "text" | "date" | "number" | "textarea" | "select" | "tags";
   placeholder?: string;
   options?: { label: string; value: string }[];
 };
@@ -42,7 +57,7 @@ const entityConfig: Record<
       { name: "description", label: "描述", type: "textarea" },
       { name: "imageUrl", label: "图片 URL" },
       { name: "location", label: "地点" },
-      { name: "tags", label: "标签", placeholder: "first,date,daily" }
+      { name: "tags", label: "标签", type: "tags" }
     ]
   },
   photos: {
@@ -54,7 +69,7 @@ const entityConfig: Record<
       { name: "alt", label: "图片描述" },
       { name: "imageUrl", label: "图片 URL" },
       { name: "location", label: "地点" },
-      { name: "tags", label: "标签", placeholder: "travel,date" }
+      { name: "tags", label: "标签", type: "tags" }
     ]
   },
   anniversaries: {
@@ -95,7 +110,7 @@ const entityConfig: Record<
       { name: "price", label: "价格", type: "number" },
       { name: "reaction", label: "她的反应", type: "textarea" },
       { name: "imageUrl", label: "图片 URL" },
-      { name: "tags", label: "标签", placeholder: "gift,daily" }
+      { name: "tags", label: "标签", type: "tags" }
     ]
   },
   wishes: {
@@ -136,7 +151,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
     description: "",
     imageUrl: "",
     location: "",
-    tags: "daily"
+    tags: "日常"
   },
   photos: {
     date: "",
@@ -144,7 +159,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
     alt: "",
     imageUrl: "",
     location: "",
-    tags: "daily"
+    tags: "日常"
   },
   anniversaries: {
     title: "",
@@ -160,7 +175,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
     price: "",
     reaction: "",
     imageUrl: "",
-    tags: "gift"
+    tags: "礼物"
   },
   wishes: {
     title: "",
@@ -178,10 +193,20 @@ export function AdminDashboard() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>(emptyDraft.timeline);
   const [editorOpen, setEditorOpen] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
   const collection = useMemo(() => {
     return data[active] as Array<Record<string, unknown> & { id: string; title: string }>;
   }, [active, data]);
+
+  const availableTags = useMemo(() => {
+    return uniqueTags([
+      ...defaultTags,
+      ...data.timeline.flatMap((item) => item.tags),
+      ...data.photos.flatMap((item) => item.tags),
+      ...data.gifts.flatMap((item) => item.tags)
+    ]);
+  }, [data.gifts, data.photos, data.timeline]);
 
   function startCreate(key = active) {
     setActive(key);
@@ -205,6 +230,15 @@ export function AdminDashboard() {
     event.preventDefault();
     const payload = normalizePayload(active, draft, editingId);
     actions.upsert(active, payload);
+    closeEditor();
+  }
+
+  function handleBulkImport(photos: Photo[]) {
+    actions.upsertMany("photos", photos);
+    setBulkOpen(false);
+  }
+
+  function closeEditor() {
     setEditingId(null);
     setDraft({ ...emptyDraft[active] });
     setEditorOpen(false);
@@ -242,12 +276,17 @@ export function AdminDashboard() {
         {(Object.keys(entityConfig) as CollectionKey[]).map((key) => (
           <TabsContent key={key} value={key}>
             <Card>
-              <CardHeader className="flex-row items-center justify-between space-y-0">
+              <CardHeader className="flex flex-col items-start justify-between gap-3 space-y-0 sm:flex-row sm:items-center">
                 <CardTitle>{entityConfig[key].label}列表</CardTitle>
-                <div className="flex gap-2">
+                <div className="flex w-full flex-wrap gap-2 sm:w-auto sm:justify-end">
                   <Button variant="outline" size="sm" onClick={actions.reset}>
                     <RotateCcw /> 重置示例
                   </Button>
+                  {key === "photos" ? (
+                    <Button variant="outline" size="sm" onClick={() => setBulkOpen(true)}>
+                      <Images /> 批量导入
+                    </Button>
+                  ) : null}
                   <Button size="sm" onClick={() => startCreate(key)}>
                     <Plus /> 新建
                   </Button>
@@ -292,6 +331,7 @@ export function AdminDashboard() {
 
       <EntityEditorDialog
         active={active}
+        availableTags={availableTags}
         draft={draft}
         editingId={editingId}
         open={editorOpen}
@@ -299,11 +339,15 @@ export function AdminDashboard() {
         onOpenChange={(open) => {
           setEditorOpen(open);
           if (!open) {
-            setEditingId(null);
-            setDraft({ ...emptyDraft[active] });
+            closeEditor();
           }
         }}
         onSubmit={handleSubmit}
+      />
+      <BulkPhotoDialog
+        open={bulkOpen}
+        onImport={handleBulkImport}
+        onOpenChange={setBulkOpen}
       />
     </section>
   );
@@ -311,6 +355,7 @@ export function AdminDashboard() {
 
 function EntityEditorDialog({
   active,
+  availableTags,
   draft,
   editingId,
   open,
@@ -319,10 +364,11 @@ function EntityEditorDialog({
   onSubmit
 }: {
   active: CollectionKey;
+  availableTags: string[];
   draft: Record<string, string>;
   editingId: string | null;
   open: boolean;
-  onDraftChange: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  onDraftChange: Dispatch<SetStateAction<Record<string, string>>>;
   onOpenChange: (open: boolean) => void;
   onSubmit: (event: FormEvent) => void;
 }) {
@@ -330,11 +376,9 @@ function EntityEditorDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>
-            {editingId ? `编辑${config.label}` : `新增${config.label}`}
-          </DialogTitle>
+          <DialogTitle>{editingId ? `编辑${config.label}` : `新增${config.label}`}</DialogTitle>
           <DialogDescription>
             在这里填写这条记录的内容，保存后会立即更新到当前页面。
           </DialogDescription>
@@ -342,29 +386,33 @@ function EntityEditorDialog({
         <form className="space-y-4" onSubmit={onSubmit}>
           <div className="grid gap-4 md:grid-cols-2">
             {config.fields.map((field) => (
-              <div key={field.name} className={field.type === "textarea" ? "md:col-span-2" : ""}>
-                <Field
-                  field={field}
-                  value={draft[field.name] ?? ""}
-                  onChange={(value) =>
-                    onDraftChange((current) => ({ ...current, [field.name]: value }))
-                  }
-                />
+              <div key={field.name} className={field.type === "textarea" || field.type === "tags" ? "md:col-span-2" : ""}>
+                {field.type === "tags" ? (
+                  <TagSelector
+                    availableTags={availableTags}
+                    value={draft[field.name] ?? ""}
+                    onChange={(value) =>
+                      onDraftChange((current) => ({ ...current, [field.name]: value }))
+                    }
+                  />
+                ) : (
+                  <Field
+                    field={field}
+                    value={draft[field.name] ?? ""}
+                    onChange={(value) =>
+                      onDraftChange((current) => ({ ...current, [field.name]: value }))
+                    }
+                  />
+                )}
               </div>
             ))}
           </div>
-          {hasTags(active) ? (
-            <p className="text-xs text-muted-foreground">
-              可用标签：
-              {tagOptions.map((item) => `${item.value}=${item.label}`).join(" · ")}
-            </p>
-          ) : null}
           {active === "photos" ? (
             <p className="text-xs text-muted-foreground">
-              新增照片时填入图片 URL；列表右侧的删除按钮可以移除照片。
+              单张新增适合精修记录；多张照片可以回到列表右上角使用批量导入。
             </p>
           ) : null}
-          <div className="flex justify-end gap-2">
+          <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
             <DialogClose asChild>
               <Button type="button" variant="outline">
                 <X /> 取消
@@ -379,6 +427,132 @@ function EntityEditorDialog({
     </Dialog>
   );
 }
+
+function TagSelector({
+  availableTags,
+  value,
+  onChange
+}: {
+  availableTags: string[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  const [newTag, setNewTag] = useState("");
+  const selectedTags = parseTags(value);
+  const tags = uniqueTags([...availableTags, ...selectedTags]);
+  const trimmedNewTag = newTag.trim();
+  const canAdd = trimmedNewTag.length > 0 && isChineseTag(trimmedNewTag);
+
+  function toggleTag(tag: string) {
+    const nextTags = selectedTags.includes(tag)
+      ? selectedTags.filter((item) => item !== tag)
+      : [...selectedTags, tag];
+    onChange(nextTags.join(","));
+  }
+
+  function addTag() {
+    if (!canAdd) {
+      return;
+    }
+    onChange(uniqueTags([...selectedTags, trimmedNewTag]).join(","));
+    setNewTag("");
+  }
+
+  return (
+    <div className="space-y-2">
+      <span className="text-sm font-medium">标签</span>
+      <div className="flex flex-wrap gap-2">
+        {tags.map((tag) => {
+          const active = selectedTags.includes(tag);
+          return (
+            <Button
+              key={tag}
+              type="button"
+              size="sm"
+              variant={active ? "default" : "outline"}
+              className="h-8"
+              onClick={() => toggleTag(tag)}
+            >
+              {tag}
+            </Button>
+          );
+        })}
+      </div>
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <Input
+          value={newTag}
+          placeholder="新建中文标签，例如：周末"
+          onChange={(event) => setNewTag(event.target.value)}
+        />
+        <Button type="button" variant="outline" onClick={addTag} disabled={!canAdd}>
+          <Plus /> 添加标签
+        </Button>
+      </div>
+      <p className="text-xs text-muted-foreground">
+        标签会保存为中文；至少包含一个中文字符才能新建。
+      </p>
+    </div>
+  );
+}
+
+function BulkPhotoDialog({
+  open,
+  onImport,
+  onOpenChange
+}: {
+  open: boolean;
+  onImport: (photos: Photo[]) => void;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const [bulkText, setBulkText] = useState("");
+  const parsedPhotos = useMemo(() => parseBulkPhotos(bulkText), [bulkText]);
+
+  function handleSubmit(event: FormEvent) {
+    event.preventDefault();
+    if (!parsedPhotos.length) {
+      return;
+    }
+    onImport(parsedPhotos);
+    setBulkText("");
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>批量导入照片</DialogTitle>
+          <DialogDescription>
+            每行一张照片，按模板粘贴外链。标签请使用中文，多个标签用中文或英文逗号分隔。
+          </DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4" onSubmit={handleSubmit}>
+          <Textarea
+            className="min-h-56 font-mono text-xs leading-6"
+            value={bulkText}
+            placeholder={
+              "图片URL | 标题 | 日期YYYY-MM-DD | 地点 | 标签\nhttps://example.com/photo-1.jpg | 海边日落 | 2025-05-20 | 厦门 | 旅行,纪念日\nhttps://example.com/photo-2.jpg | 周末早餐 | 2025-06-01 | 家 | 日常,美食"
+            }
+            onChange={(event) => setBulkText(event.target.value)}
+          />
+          <p className="text-xs text-muted-foreground">
+            已识别 {parsedPhotos.length} 张照片。批量导入里的新标签会随照片一起保存，之后会出现在标签选择器里。
+          </p>
+          <div className="flex flex-col-reverse justify-end gap-2 sm:flex-row">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                <X /> 取消
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={!parsedPhotos.length}>
+              <Images /> 导入照片
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 function ProfileSettings({
   profile,
   onSave
@@ -540,7 +714,7 @@ function normalizePayload(
       price: draft.price ? Number(draft.price) : undefined,
       reaction: draft.reaction,
       imageUrl: draft.imageUrl,
-      tags: parseTags(draft.tags)
+      tags: parseTags(draft.tags, ["礼物"])
     };
   }
 
@@ -567,15 +741,33 @@ function normalizePayload(
   };
 }
 
-function parseTags(value: string): Tag[] {
-  const allowed = new Set(tagOptions.map((item) => item.value));
-  const tags = value
-    .split(",")
-    .map((tag) => tag.trim())
-    .filter((tag): tag is Tag => allowed.has(tag as Tag));
-  return tags.length ? tags : ["daily"];
+function parseBulkPhotos(value: string): Photo[] {
+  const today = new Date().toISOString().slice(0, 10);
+
+  return value
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+    .map((line, index) => {
+      const [imageUrl, title, date, location, tags] = line.split("|").map((part) => part.trim());
+      if (!imageUrl) {
+        return null;
+      }
+      const finalTitle = title || `照片 ${index + 1}`;
+      return {
+        id: createId("ph"),
+        date: date || today,
+        title: finalTitle,
+        alt: finalTitle,
+        imageUrl,
+        location: location || "",
+        tags: parseTags(tags || "日常")
+      };
+    })
+    .filter((photo): photo is Photo => Boolean(photo));
 }
 
-function hasTags(key: CollectionKey) {
-  return key === "timeline" || key === "photos" || key === "gifts";
+function parseTags(value: string, fallback: Tag[] = ["日常"]): Tag[] {
+  const tags = uniqueTags(value.split(/[，,]/).map((tag) => tag.trim()));
+  return tags.length ? tags : fallback;
 }

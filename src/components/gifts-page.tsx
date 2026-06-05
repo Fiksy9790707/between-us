@@ -4,7 +4,6 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Gift as GiftIcon, MessageCircle, WalletCards } from "lucide-react";
 import { useMemoryData } from "@/hooks/use-memory-data";
-import { tagLabels } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -56,7 +55,7 @@ export function GiftsPage() {
                 <div className="mt-4 flex flex-wrap gap-2">
                   {gift.tags.map((tag) => (
                     <Badge key={tag} variant="outline">
-                      {tagLabels[tag]}
+                      {tag}
                     </Badge>
                   ))}
                 </div>

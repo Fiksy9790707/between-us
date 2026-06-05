@@ -5,8 +5,7 @@ import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useMemoryData } from "@/hooks/use-memory-data";
-import type { Tag } from "@/types/memory";
-import { tagLabels, tagOptions } from "@/lib/constants";
+import { defaultTags, uniqueTags } from "@/lib/constants";
 import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,9 +14,13 @@ export function TimelinePage() {
   const { data } = useMemoryData();
   const [tag, setTag] = useState<string>("all");
 
+  const tags = useMemo(() => {
+    return uniqueTags([...defaultTags, ...data.timeline.flatMap((item) => item.tags)]);
+  }, [data.timeline]);
+
   const events = useMemo(() => {
     return data.timeline
-      .filter((item) => tag === "all" || item.tags.includes(tag as Tag))
+      .filter((item) => tag === "all" || item.tags.includes(tag))
       .slice()
       .sort((a, b) => a.date.localeCompare(b.date));
   }, [data.timeline, tag]);
@@ -28,13 +31,13 @@ export function TimelinePage() {
         <FilterButton active={tag === "all"} onClick={() => setTag("all")}>
           全部
         </FilterButton>
-        {tagOptions.map((item) => (
+        {tags.map((item) => (
           <FilterButton
-            key={item.value}
-            active={tag === item.value}
-            onClick={() => setTag(item.value)}
+            key={item}
+            active={tag === item}
+            onClick={() => setTag(item)}
           >
-            {item.label}
+            {item}
           </FilterButton>
         ))}
       </div>
@@ -76,7 +79,7 @@ export function TimelinePage() {
                   <div className="mt-4 flex flex-wrap gap-2">
                     {item.tags.map((itemTag) => (
                       <Badge key={itemTag} variant="outline">
-                        {tagLabels[itemTag]}
+                        {itemTag}
                       </Badge>
                     ))}
                   </div>

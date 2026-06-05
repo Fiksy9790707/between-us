@@ -6,7 +6,6 @@ import { MapPin } from "lucide-react";
 import { useState } from "react";
 import { useMemoryData } from "@/hooks/use-memory-data";
 import type { Photo } from "@/types/memory";
-import { tagLabels } from "@/lib/constants";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -78,7 +77,7 @@ export function PhotosPage() {
                 <div className="flex flex-wrap gap-2 pt-2">
                   {selected.tags.map((tag) => (
                     <Badge key={tag} variant="outline">
-                      {tagLabels[tag]}
+                      {tag}
                     </Badge>
                   ))}
                 </div>

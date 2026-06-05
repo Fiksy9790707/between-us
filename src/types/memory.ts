@@ -1,12 +1,4 @@
-export type Tag =
-  | "first"
-  | "date"
-  | "anniversary"
-  | "travel"
-  | "gift"
-  | "daily"
-  | "birthday"
-  | "food";
+export type Tag = string;
 
 export type Profile = {
   names: {

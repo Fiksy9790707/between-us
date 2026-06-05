@@ -1,17 +1,18 @@
-import type { Tag } from "@/types/memory";
+export const defaultTags = [
+  "第一次",
+  "约会",
+  "纪念日",
+  "旅行",
+  "礼物",
+  "日常",
+  "生日",
+  "美食"
+];
 
-export const tagLabels: Record<Tag, string> = {
-  first: "第一次",
-  date: "约会",
-  anniversary: "纪念日",
-  travel: "旅行",
-  gift: "礼物",
-  daily: "日常",
-  birthday: "生日",
-  food: "美食"
-};
+export function uniqueTags(tags: string[]) {
+  return Array.from(new Set(tags.map((tag) => tag.trim()).filter(Boolean)));
+}
 
-export const tagOptions = Object.entries(tagLabels).map(([value, label]) => ({
-  value: value as Tag,
-  label
-}));
+export function isChineseTag(tag: string) {
+  return /[\u4e00-\u9fff]/.test(tag.trim());
+}
