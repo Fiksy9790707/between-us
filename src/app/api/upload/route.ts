@@ -2,8 +2,7 @@ import { NextResponse } from "next/server";
 import {
   createSupabaseAdminClient,
   imageBucket,
-  isSupabaseConfigured,
-  verifyAdminCode
+  isSupabaseConfigured
 } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -15,10 +14,6 @@ export async function POST(request: Request) {
       { error: "Supabase is not configured." },
       { status: 503 }
     );
-  }
-
-  if (!verifyAdminCode(request)) {
-    return NextResponse.json({ error: "Invalid admin code." }, { status: 401 });
   }
 
   const formData = await request.formData();

@@ -56,13 +56,12 @@ NEXT_PUBLIC_SUPABASE_URL=你的 Project URL
 NEXT_PUBLIC_SUPABASE_ANON_KEY=你的 publishable key
 SUPABASE_SERVICE_ROLE_KEY=你的 service_role key
 SUPABASE_STORAGE_BUCKET=between-us-images
-BETWEEN_US_ADMIN_CODE=你和 Cindy 共享的管理密码
 NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
 ```
 
 6. 重新部署 Vercel。
 
-`BETWEEN_US_ADMIN_CODE` 用来保护修改和上传图片。你和 Cindy 第一次保存内容或上传图片时，在浏览器里输入这个密码即可。
+保存内容和上传图片会直接写入 Supabase，同一份数据会在主站和镜像站之间同步。
 
 ## GitHub Pages 静态镜像
 
@@ -80,10 +79,9 @@ https://Fiksy9790707.github.io/between-us/
 
 镜像站适合国内访问不稳定时浏览内容。注意：
 
-- 镜像站是静态站，只负责展示。
 - 镜像站会用 Supabase publishable/anon key 读取最新数据。
 - 镜像站打开后会定时从 Supabase 刷新内容；主站修改后，镜像站刷新页面或等待一会儿即可看到。
-- 修改、删除、上传图片仍然去 Vercel 主站 `/admin`。
+- 配置 `save_memory_state` 数据库函数后，镜像站也可以直接同步修改内容。
 - 不要把 `SUPABASE_SERVICE_ROLE_KEY` 放到 GitHub Pages 或前端环境变量里。
 
 启用镜像前，在 GitHub 仓库里添加 Actions Secrets：
@@ -112,9 +110,8 @@ between-us-memory-data
 
 - 你和 Cindy 都访问同一个 Vercel 网站。
 - 内容展示页面会读取同一份 Supabase 数据。
-- 修改内容、切换未来清单状态、上传图片时，会要求输入共享管理密码。
-- 两个人输入同一个 `BETWEEN_US_ADMIN_CODE` 后，都可以管理。
-- 如果删除示例后刷新又出现，通常说明删除没有成功写入 Supabase。请确认 `/admin` 顶部显示“Supabase 云端同步”，并输入正确的共享管理密码。
+- 修改内容、切换未来清单状态、上传图片时，会直接同步到 Supabase。
+- 如果删除示例后刷新又出现，通常说明删除没有成功写入 Supabase。请确认 `/admin` 顶部显示“Supabase 云端同步”，并检查 Supabase 配置和网络状态。
 - 想一次性删除所有示例内容，请在 `/admin` 点击“清空内容”；“恢复示例”会重新载入示例数据。
 
 ## 常用入口

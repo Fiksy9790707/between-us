@@ -22,14 +22,3 @@ export function createSupabaseAdminClient() {
     }
   });
 }
-
-export function verifyAdminCode(request: Request) {
-  const expectedCode = process.env.BETWEEN_US_ADMIN_CODE;
-  const providedCode = request.headers.get("x-between-us-admin-code");
-
-  if (!expectedCode) {
-    return false;
-  }
-
-  return providedCode === expectedCode;
-}

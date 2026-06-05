@@ -13,6 +13,7 @@ import {
   Sparkles
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { SaveToast } from "@/components/save-toast";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 const navItems = [
@@ -59,6 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
       <main>{children}</main>
+      <SaveToast />
       <nav className="fixed inset-x-0 bottom-0 z-50 border-t bg-background/92 px-2 py-2 backdrop-blur-xl md:hidden">
         <div className="mx-auto grid max-w-md grid-cols-7 gap-1">
           {navItems.map((item) => {

@@ -23,7 +23,6 @@ docker run -d \
   -e NEXT_PUBLIC_SUPABASE_URL=https://你的项目.supabase.co \
   -e SUPABASE_SERVICE_ROLE_KEY=你的 service_role key \
   -e SUPABASE_STORAGE_BUCKET=between-us-images \
-  -e BETWEEN_US_ADMIN_CODE=你和 Cindy 的管理密码 \
   between-us
 ```
 
@@ -53,7 +52,6 @@ NEXT_PUBLIC_SITE_URL=https://你的域名
 NEXT_PUBLIC_SUPABASE_URL=https://你的项目.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=你的 service_role key
 SUPABASE_STORAGE_BUCKET=between-us-images
-BETWEEN_US_ADMIN_CODE=你和 Cindy 的管理密码
 ```
 
 ## Nginx 反向代理

@@ -38,7 +38,7 @@ export async function readMemoryFromSupabase() {
   return (data?.data as MemoryData | undefined) ?? null;
 }
 
-export async function writeMemoryToSupabase(nextData: MemoryData, adminCode: string) {
+export async function writeMemoryToSupabase(nextData: MemoryData) {
   const supabase = createSupabaseBrowserClient();
 
   if (!supabase) {
@@ -46,7 +46,6 @@ export async function writeMemoryToSupabase(nextData: MemoryData, adminCode: str
   }
 
   const { data, error } = await supabase.rpc("save_memory_state", {
-    p_admin_code: adminCode,
     p_data: nextData
   });
 

@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import seed from "@/data/seed.json";
-import { clearAdminCode, requestAdminCode } from "@/lib/admin-access";
 import {
   isStaticMirror,
   readMemoryFromSupabase,
@@ -132,11 +131,8 @@ export function useMemoryData() {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
 
       if (source === "mirror") {
-        const code = requestAdminCode();
-        if (!code) {
-          throw new Error("Missing admin code.");
-        }
-        await writeMemoryToSupabase(nextData, code);
+        await writeMemoryToSupabase(nextData);
+        notifySaveSuccess();
         return;
       }
 
@@ -144,16 +140,10 @@ export function useMemoryData() {
         return;
       }
 
-      const code = requestAdminCode();
-      if (!code) {
-        throw new Error("Missing admin code.");
-      }
-
       const response = await fetch("/api/memory", {
         method: "PUT",
         headers: {
-          "content-type": "application/json",
-          "x-between-us-admin-code": code
+          "content-type": "application/json"
         },
         body: JSON.stringify({ data: nextData })
       });
@@ -161,6 +151,7 @@ export function useMemoryData() {
       if (!response.ok) {
         throw new Error(await response.text());
       }
+      notifySaveSuccess();
     },
     [source]
   );
@@ -170,8 +161,7 @@ export function useMemoryData() {
       setData((current) => {
         const nextData = updater(current);
         void persist(nextData).catch(() => {
-          clearAdminCode();
-          window.alert("云端保存失败。已清除这台设备保存的管理密码，请重试并输入最新密码。");
+          notifySaveError();
         });
         return nextData;
       });
@@ -248,4 +238,12 @@ function migrateMemoryData(data: MemoryData): MemoryData {
 
 function migrateTags(tags: string[]) {
   return tags.map((tag) => legacyTagMap[tag] ?? tag);
+}
+
+function notifySaveSuccess() {
+  window.dispatchEvent(new CustomEvent("between-us-save-success"));
+}
+
+function notifySaveError() {
+  window.dispatchEvent(new CustomEvent("between-us-save-error"));
 }

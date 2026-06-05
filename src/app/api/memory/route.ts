@@ -4,8 +4,7 @@ import type { MemoryData } from "@/types/memory";
 import {
   createSupabaseAdminClient,
   isSupabaseConfigured,
-  memoryRowId,
-  verifyAdminCode
+  memoryRowId
 } from "@/lib/supabase/server";
 
 export const runtime = "nodejs";
@@ -43,10 +42,6 @@ export async function PUT(request: Request) {
       { error: "Supabase is not configured." },
       { status: 503 }
     );
-  }
-
-  if (!verifyAdminCode(request)) {
-    return NextResponse.json({ error: "Invalid admin code." }, { status: 401 });
   }
 
   const body = (await request.json()) as { data?: MemoryData };
