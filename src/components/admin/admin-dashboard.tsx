@@ -9,6 +9,14 @@ import { tagOptions } from "@/lib/constants";
 import { createId } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -169,14 +177,17 @@ export function AdminDashboard() {
   const [active, setActive] = useState<CollectionKey>("timeline");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>(emptyDraft.timeline);
+  const [editorOpen, setEditorOpen] = useState(false);
 
   const collection = useMemo(() => {
     return data[active] as Array<Record<string, unknown> & { id: string; title: string }>;
   }, [active, data]);
 
   function startCreate(key = active) {
+    setActive(key);
     setEditingId(null);
-    setDraft(emptyDraft[key]);
+    setDraft({ ...emptyDraft[key] });
+    setEditorOpen(true);
   }
 
   function startEdit(item: Record<string, unknown> & { id: string }) {
@@ -187,20 +198,24 @@ export function AdminDashboard() {
       next[field.name] = Array.isArray(value) ? value.join(",") : String(value ?? "");
     });
     setDraft(next);
+    setEditorOpen(true);
   }
 
   function handleSubmit(event: FormEvent) {
     event.preventDefault();
     const payload = normalizePayload(active, draft, editingId);
     actions.upsert(active, payload);
-    startCreate(active);
+    setEditingId(null);
+    setDraft({ ...emptyDraft[active] });
+    setEditorOpen(false);
   }
 
   function handleTabChange(value: string) {
     const key = value as CollectionKey;
     setActive(key);
     setEditingId(null);
-    setDraft(emptyDraft[key]);
+    setDraft({ ...emptyDraft[key] });
+    setEditorOpen(false);
   }
 
   return (
@@ -226,99 +241,144 @@ export function AdminDashboard() {
 
         {(Object.keys(entityConfig) as CollectionKey[]).map((key) => (
           <TabsContent key={key} value={key}>
-            <div className="grid gap-5 lg:grid-cols-[0.9fr_1.1fr]">
-              <Card>
-                <CardHeader className="flex-row items-center justify-between space-y-0">
-                  <CardTitle>{editingId ? "编辑记录" : "新增记录"}</CardTitle>
-                  <Button variant="ghost" size="sm" onClick={() => startCreate(key)}>
-                    <Plus /> 新建
-                  </Button>
-                </CardHeader>
-                <CardContent>
-                  <form className="space-y-4" onSubmit={handleSubmit}>
-                    {entityConfig[key].fields.map((field) => (
-                      <Field
-                        key={field.name}
-                        field={field}
-                        value={draft[field.name] ?? ""}
-                        onChange={(value) =>
-                          setDraft((current) => ({ ...current, [field.name]: value }))
-                        }
-                      />
-                    ))}
-                    {hasTags(key) ? (
-                      <p className="text-xs text-muted-foreground">
-                        可用标签：
-                        {tagOptions.map((item) => `${item.value}=${item.label}`).join(" · ")}
-                      </p>
-                    ) : null}
-                    {key === "photos" ? (
-                      <p className="text-xs text-muted-foreground">
-                        新增照片时填入图片 URL；列表右侧的删除按钮可以移除照片。
-                      </p>
-                    ) : null}
-                    <div className="flex gap-2">
-                      <Button type="submit">
-                        <Save /> 保存
-                      </Button>
-                      {editingId ? (
-                        <Button type="button" variant="outline" onClick={() => startCreate(key)}>
-                          <X /> 取消
-                        </Button>
-                      ) : null}
-                    </div>
-                  </form>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader className="flex-row items-center justify-between space-y-0">
-                  <CardTitle>{entityConfig[key].label}列表</CardTitle>
+            <Card>
+              <CardHeader className="flex-row items-center justify-between space-y-0">
+                <CardTitle>{entityConfig[key].label}列表</CardTitle>
+                <div className="flex gap-2">
                   <Button variant="outline" size="sm" onClick={actions.reset}>
                     <RotateCcw /> 重置示例
                   </Button>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {collection.map((item) => (
-                    <div
-                      key={item.id}
-                      className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[72px_1fr_auto]"
-                    >
-                      <PreviewImage item={item} />
-                      <div className="min-w-0">
-                        <p className="truncate font-medium">{item.title}</p>
-                        <p className="mt-1 truncate text-sm text-muted-foreground">
-                          {String(item.date ?? item.category ?? item.type ?? "")}
-                        </p>
-                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                          {String(item.description ?? item.reaction ?? item.scenario ?? "")}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2 sm:justify-end">
-                        <Button variant="outline" size="icon" title="编辑" onClick={() => startEdit(item)}>
-                          <Edit3 />
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          size="icon"
-                          title="删除"
-                          onClick={() => actions.remove(key, item.id)}
-                        >
-                          <Trash2 />
-                        </Button>
-                      </div>
+                  <Button size="sm" onClick={() => startCreate(key)}>
+                    <Plus /> 新建
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {collection.map((item) => (
+                  <div
+                    key={item.id}
+                    className="grid gap-3 rounded-lg border p-3 sm:grid-cols-[72px_1fr_auto]"
+                  >
+                    <PreviewImage item={item} />
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">{item.title}</p>
+                      <p className="mt-1 truncate text-sm text-muted-foreground">
+                        {String(item.date ?? item.category ?? item.type ?? "")}
+                      </p>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+                        {String(item.description ?? item.reaction ?? item.scenario ?? "")}
+                      </p>
                     </div>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
+                    <div className="flex items-center gap-2 sm:justify-end">
+                      <Button variant="outline" size="icon" title="编辑" onClick={() => startEdit(item)}>
+                        <Edit3 />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        title="删除"
+                        onClick={() => actions.remove(key, item.id)}
+                      >
+                        <Trash2 />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
           </TabsContent>
         ))}
       </Tabs>
+
+      <EntityEditorDialog
+        active={active}
+        draft={draft}
+        editingId={editingId}
+        open={editorOpen}
+        onDraftChange={setDraft}
+        onOpenChange={(open) => {
+          setEditorOpen(open);
+          if (!open) {
+            setEditingId(null);
+            setDraft({ ...emptyDraft[active] });
+          }
+        }}
+        onSubmit={handleSubmit}
+      />
     </section>
   );
 }
 
+function EntityEditorDialog({
+  active,
+  draft,
+  editingId,
+  open,
+  onDraftChange,
+  onOpenChange,
+  onSubmit
+}: {
+  active: CollectionKey;
+  draft: Record<string, string>;
+  editingId: string | null;
+  open: boolean;
+  onDraftChange: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (event: FormEvent) => void;
+}) {
+  const config = entityConfig[active];
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>
+            {editingId ? `编辑${config.label}` : `新增${config.label}`}
+          </DialogTitle>
+          <DialogDescription>
+            在这里填写这条记录的内容，保存后会立即更新到当前页面。
+          </DialogDescription>
+        </DialogHeader>
+        <form className="space-y-4" onSubmit={onSubmit}>
+          <div className="grid gap-4 md:grid-cols-2">
+            {config.fields.map((field) => (
+              <div key={field.name} className={field.type === "textarea" ? "md:col-span-2" : ""}>
+                <Field
+                  field={field}
+                  value={draft[field.name] ?? ""}
+                  onChange={(value) =>
+                    onDraftChange((current) => ({ ...current, [field.name]: value }))
+                  }
+                />
+              </div>
+            ))}
+          </div>
+          {hasTags(active) ? (
+            <p className="text-xs text-muted-foreground">
+              可用标签：
+              {tagOptions.map((item) => `${item.value}=${item.label}`).join(" · ")}
+            </p>
+          ) : null}
+          {active === "photos" ? (
+            <p className="text-xs text-muted-foreground">
+              新增照片时填入图片 URL；列表右侧的删除按钮可以移除照片。
+            </p>
+          ) : null}
+          <div className="flex justify-end gap-2">
+            <DialogClose asChild>
+              <Button type="button" variant="outline">
+                <X /> 取消
+              </Button>
+            </DialogClose>
+            <Button type="submit">
+              <Save /> 保存
+            </Button>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
 function ProfileSettings({
   profile,
   onSave
