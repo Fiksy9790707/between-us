@@ -1,12 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { Gift as GiftIcon, MessageCircle, WalletCards } from "lucide-react";
 import { useMemoryData } from "@/hooks/use-memory-data";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { MemoryImage } from "@/components/memory-image";
 
 export function GiftsPage() {
   const { data } = useMemoryData();
@@ -25,7 +25,7 @@ export function GiftsPage() {
           >
             <Card className="h-full overflow-hidden">
               <div className="relative aspect-[4/3]">
-                <Image
+                <MemoryImage
                   src={gift.imageUrl}
                   alt={gift.title}
                   fill

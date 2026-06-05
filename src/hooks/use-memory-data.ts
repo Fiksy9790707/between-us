@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import seed from "@/data/seed.json";
+import { requestAdminCode } from "@/lib/admin-access";
 import type { MemoryData } from "@/types/memory";
 
 const STORAGE_KEY = "between-us-memory-data";
@@ -30,33 +31,104 @@ type EntityMap = {
 };
 
 type Entity = EntityMap[CollectionKey];
+type DataSource = "loading" | "cloud" | "local";
 
 export function useMemoryData() {
   const [data, setData] = useState<MemoryData>(defaultData);
   const [ready, setReady] = useState(false);
+  const [source, setSource] = useState<DataSource>("loading");
 
   useEffect(() => {
-    const saved = window.localStorage.getItem(STORAGE_KEY);
-    if (saved) {
+    let cancelled = false;
+
+    async function loadData() {
       try {
-        setData(migrateMemoryData(JSON.parse(saved) as MemoryData));
+        const response = await fetch("/api/memory", { cache: "no-store" });
+        if (response.ok) {
+          const payload = (await response.json()) as {
+            cloudEnabled: boolean;
+            data: MemoryData;
+          };
+          if (!cancelled) {
+            const migratedData = migrateMemoryData(payload.data);
+            setData(migratedData);
+            setSource(payload.cloudEnabled ? "cloud" : "local");
+            window.localStorage.setItem(STORAGE_KEY, JSON.stringify(migratedData));
+            setReady(true);
+          }
+          return;
+        }
       } catch {
-        setData(defaultData);
+        // Fall through to local data.
+      }
+
+      const saved = window.localStorage.getItem(STORAGE_KEY);
+      if (!cancelled) {
+        if (saved) {
+          try {
+            setData(migrateMemoryData(JSON.parse(saved) as MemoryData));
+          } catch {
+            setData(defaultData);
+          }
+        }
+        setSource("local");
+        setReady(true);
       }
     }
-    setReady(true);
+
+    loadData();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  useEffect(() => {
-    if (ready) {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    }
-  }, [data, ready]);
+  const persist = useCallback(
+    async (nextData: MemoryData) => {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(nextData));
+
+      if (source !== "cloud") {
+        return;
+      }
+
+      const code = requestAdminCode();
+      if (!code) {
+        return;
+      }
+
+      const response = await fetch("/api/memory", {
+        method: "PUT",
+        headers: {
+          "content-type": "application/json",
+          "x-between-us-admin-code": code
+        },
+        body: JSON.stringify({ data: nextData })
+      });
+
+      if (!response.ok) {
+        throw new Error(await response.text());
+      }
+    },
+    [source]
+  );
+
+  const updateData = useCallback(
+    (updater: (current: MemoryData) => MemoryData) => {
+      setData((current) => {
+        const nextData = updater(current);
+        void persist(nextData).catch(() => {
+          window.alert("云端保存失败。请检查管理密码、Supabase 配置或网络状态。");
+        });
+        return nextData;
+      });
+    },
+    [persist]
+  );
 
   const actions = useMemo(
     () => ({
       upsert(key: CollectionKey, item: Entity) {
-        setData((current) => {
+        updateData((current) => {
           const collection = current[key] as Entity[];
           const exists = collection.some((entry) => entry.id === item.id);
           const nextCollection = exists
@@ -66,7 +138,7 @@ export function useMemoryData() {
         });
       },
       upsertMany(key: CollectionKey, items: Entity[]) {
-        setData((current) => {
+        updateData((current) => {
           const collection = current[key] as Entity[];
           const nextCollection = items.reduce((next, item) => {
             const exists = next.some((entry) => entry.id === item.id);
@@ -78,26 +150,25 @@ export function useMemoryData() {
         });
       },
       remove(key: CollectionKey, id: string) {
-        setData((current) => ({
+        updateData((current) => ({
           ...current,
           [key]: current[key].filter((entry) => entry.id !== id)
         }));
       },
       updateProfile(profile: MemoryData["profile"]) {
-        setData((current) => ({
+        updateData((current) => ({
           ...current,
           profile
         }));
       },
       reset() {
-        setData(defaultData);
-        window.localStorage.removeItem(STORAGE_KEY);
+        updateData(() => defaultData);
       }
     }),
-    []
+    [updateData]
   );
 
-  return { data, ready, actions };
+  return { data, ready, source, actions };
 }
 
 function migrateMemoryData(data: MemoryData): MemoryData {

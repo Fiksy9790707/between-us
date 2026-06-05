@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import {
   Edit3,
+  ImagePlus,
   Images,
   Plus,
   RotateCcw,
@@ -20,6 +20,7 @@ import {
 } from "react";
 import { useMemoryData, type CollectionKey } from "@/hooks/use-memory-data";
 import type { MemoryData, Photo, Profile, Tag } from "@/types/memory";
+import { saveImageFile } from "@/lib/image-upload";
 import { defaultTags, isChineseTag, uniqueTags } from "@/lib/constants";
 import { createId } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { MemoryImage } from "@/components/memory-image";
 
 type FieldConfig = {
   name: string;
@@ -188,7 +190,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
 };
 
 export function AdminDashboard() {
-  const { data, actions } = useMemoryData();
+  const { data, source, actions } = useMemoryData();
   const [active, setActive] = useState<CollectionKey>("timeline");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>(emptyDraft.timeline);
@@ -257,9 +259,9 @@ export function AdminDashboard() {
       <ProfileSettings profile={data.profile} onSave={actions.updateProfile} />
 
       <div className="rounded-lg border bg-accent/60 p-4 text-sm leading-6 text-accent-foreground">
-        当前数据保存在浏览器 localStorage。部署到 Vercel 后无需数据库即可使用；未来迁移时可把
-        <code className="mx-1 rounded bg-background px-1.5 py-0.5">useMemoryData</code>
-        替换为 Supabase/PostgreSQL 的数据访问层。
+        当前模式：
+        <strong className="mx-1">{source === "cloud" ? "Supabase 云端同步" : "本地备用模式"}</strong>
+        。云端模式下，你和 Cindy 在不同设备上修改后都会写入同一份数据库；上传图片会保存到 Supabase Storage。
       </div>
 
       <Tabs value={active} defaultValue="timeline" onValueChange={handleTabChange}>
@@ -390,6 +392,13 @@ function EntityEditorDialog({
                 {field.type === "tags" ? (
                   <TagSelector
                     availableTags={availableTags}
+                    value={draft[field.name] ?? ""}
+                    onChange={(value) =>
+                      onDraftChange((current) => ({ ...current, [field.name]: value }))
+                    }
+                  />
+                ) : field.name === "imageUrl" ? (
+                  <ImageValueField
                     value={draft[field.name] ?? ""}
                     onChange={(value) =>
                       onDraftChange((current) => ({ ...current, [field.name]: value }))
@@ -663,6 +672,51 @@ function Field({
   );
 }
 
+function ImageValueField({
+  value,
+  onChange
+}: {
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  async function handleFile(file: File | undefined) {
+    if (!file) {
+      return;
+    }
+    onChange(await saveImageFile(file));
+  }
+
+  return (
+    <div className="space-y-2">
+      <span className="text-sm font-medium">图片</span>
+      {value ? (
+        <div className="relative aspect-[4/3] overflow-hidden rounded-lg border bg-muted">
+          <MemoryImage src={value} alt="图片预览" fill className="object-cover" />
+        </div>
+      ) : null}
+      <Input
+        value={value}
+        placeholder="粘贴图片 URL，或从相册选择"
+        onChange={(event) => onChange(event.target.value)}
+      />
+      <Button asChild type="button" variant="outline" className="w-full">
+        <label className="cursor-pointer">
+          <ImagePlus /> 从相册选择图片
+          <input
+            className="sr-only"
+            type="file"
+            accept="image/*"
+            onChange={(event) => handleFile(event.target.files?.[0])}
+          />
+        </label>
+      </Button>
+      <p className="text-xs text-muted-foreground">
+        相册图片会保存到浏览器本地数据，适合少量精选照片。
+      </p>
+    </div>
+  );
+}
+
 function PreviewImage({ item }: { item: Record<string, unknown> }) {
   const imageUrl = typeof item.imageUrl === "string" ? item.imageUrl : "";
   if (!imageUrl) {
@@ -670,7 +724,7 @@ function PreviewImage({ item }: { item: Record<string, unknown> }) {
   }
   return (
     <div className="relative hidden size-[72px] overflow-hidden rounded-md bg-muted sm:block">
-      <Image src={imageUrl} alt={String(item.title ?? "")} fill sizes="72px" className="object-cover" />
+      <MemoryImage src={imageUrl} alt={String(item.title ?? "")} fill sizes="72px" className="object-cover" />
     </div>
   );
 }

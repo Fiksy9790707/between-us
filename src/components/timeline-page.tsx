@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { MapPin } from "lucide-react";
 import { useMemo, useState } from "react";
@@ -9,6 +8,7 @@ import { defaultTags, uniqueTags } from "@/lib/constants";
 import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { MemoryImage } from "@/components/memory-image";
 
 export function TimelinePage() {
   const { data } = useMemoryData();
@@ -60,7 +60,7 @@ export function TimelinePage() {
               <div className="absolute left-[0.55rem] top-8 size-4 rounded-full border-4 border-background bg-foreground md:left-1/2 md:-translate-x-1/2" />
               <div className="overflow-hidden rounded-lg border bg-card shadow-sm">
                 <div className="relative aspect-[4/3]">
-                  <Image
+                  <MemoryImage
                     src={item.imageUrl}
                     alt={item.title}
                     fill

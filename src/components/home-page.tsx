@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarDays, Camera, MapPin } from "lucide-react";
@@ -9,6 +8,7 @@ import { daysBetween, formatDate } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { MemoryImage } from "@/components/memory-image";
 
 export function HomePage() {
   const { data } = useMemoryData();
@@ -58,7 +58,7 @@ export function HomePage() {
           {featured ? (
             <Card className="relative overflow-hidden rounded-lg">
               <div className="relative aspect-[4/5]">
-                <Image
+                <MemoryImage
                   src={featured.imageUrl}
                   alt={featured.title}
                   fill
@@ -104,7 +104,7 @@ export function HomePage() {
           {data.timeline.slice(0, 3).map((item) => (
             <Card key={item.id} className="overflow-hidden">
               <div className="relative aspect-[5/3]">
-                <Image src={item.imageUrl} alt={item.title} fill sizes="33vw" className="object-cover" />
+                <MemoryImage src={item.imageUrl} alt={item.title} fill sizes="33vw" className="object-cover" />
               </div>
               <CardContent className="pt-5">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">

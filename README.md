@@ -1,20 +1,21 @@
 # Between Us
 
-一个高级、克制、现代化的情侣时间线与回忆收藏 Web 应用。基于 Next.js 15 App Router、TypeScript、TailwindCSS、shadcn/ui 风格组件、Framer Motion 和本地 JSON/localStorage 数据构建，可直接部署到 Vercel。
+一个高级、克制、现代化的情侣时间线与回忆收藏 Web 应用。基于 Next.js 15 App Router、TypeScript、TailwindCSS、shadcn/ui 风格组件、Framer Motion、Supabase 和 Vercel 构建。
 
 ## 功能
 
 - 首页：情侣名字、恋爱天数自动计算、简洁文案、克制 Hero 动画
-- 时间线：按时间展示第一次见面、约会、纪念日、旅行、礼物和日常小事，支持标签筛选
-- 照片墙：响应式瀑布流、懒加载、点击查看大图
+- 时间线：展示第一次见面、约会、纪念日、旅行、礼物和日常小事，支持中文标签筛选
+- 照片墙：瀑布流布局、懒加载、点击查看大图
 - 纪念日：在一起天数、下一个纪念日倒计时、生日倒计时、重要日期列表
 - 礼物记录：日期、场景、可选价格、反应、图片
-- 未来清单：地点、美食、想做的事，支持已完成/未完成
-- 管理后台：对时间线、照片、纪念日、礼物和未来清单进行新增、编辑、删除
-- 基础设置：在后台调整情侣名字、恋爱开始日期和首页文案
-- 照片批量导入：在后台一次粘贴多张图片 URL
-- 中文标签系统：标签可点选，也可以新建中文标签
-- 暗色模式、SEO 基础元信息、移动端优先响应式设计
+- 未来清单：每个分类下可直接添加事项，已完成/未完成可点击切换
+- 管理后台：新增、编辑、删除时间线、照片、纪念日、礼物和未来清单
+- 基础设置：后台调整情侣名字、恋爱开始日期和首页文案
+- 照片导入：后台批量导入 URL，照片墙和编辑表单可直接从手机相册选择图片
+- 中文标签：标签可点选，也可以新建中文标签
+- Supabase 云端同步：两个人可在不同设备共同管理内容和图片
+- 暗色模式、SEO 基础优化、移动端优先响应式设计
 
 ## 技术栈
 
@@ -23,7 +24,8 @@
 - TailwindCSS
 - shadcn/ui 风格组件
 - Framer Motion
-- localStorage + 本地 JSON 模拟数据
+- Supabase Database + Supabase Storage
+- localStorage + 本地 JSON 备用数据
 - Vercel 部署
 
 ## 本地运行
@@ -35,46 +37,66 @@ npm run dev
 
 打开 [http://localhost:3000](http://localhost:3000)。
 
-## 数据说明
+## Supabase 设置
 
-初始数据位于：
-
-```txt
-src/data/seed.json
-```
-
-核心类型位于：
+1. 在 [Supabase](https://supabase.com) 创建项目。
+2. 打开 Supabase SQL Editor。
+3. 复制并执行 `supabase/schema.sql` 的全部内容。
+4. 打开 Project Settings -> API，复制：
 
 ```txt
-src/types/memory.ts
+Project URL
+service_role key
 ```
 
-运行后，管理后台的修改会写入浏览器 localStorage，key 为：
+5. 在 Vercel 的 Environment Variables 添加：
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=你的 Project URL
+SUPABASE_SERVICE_ROLE_KEY=你的 service_role key
+SUPABASE_STORAGE_BUCKET=between-us-images
+BETWEEN_US_ADMIN_CODE=你和 Cindy 共享的管理密码
+NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
+```
+
+6. 重新部署 Vercel。
+
+`BETWEEN_US_ADMIN_CODE` 用来保护修改和上传图片。你和 Cindy 第一次保存内容或上传图片时，在浏览器里输入这个密码即可。
+
+## 数据和图片
+
+- 结构化数据存储在 Supabase `memory_state.data` JSONB 字段里。
+- 从手机相册选择的图片会上传到 Supabase Storage 的 `between-us-images` bucket。
+- 外链图片会直接保存 URL。
+- 未配置 Supabase 时，应用会退回本地备用模式，数据写入浏览器 localStorage。
+
+localStorage key：
 
 ```txt
 between-us-memory-data
 ```
 
-如果要恢复示例数据，可在管理后台点击“重置示例”。
+## 共同管理方式
 
-## 未来迁移到 Supabase/PostgreSQL
+- 你和 Cindy 都访问同一个 Vercel 网站。
+- 内容展示页面会读取同一份 Supabase 数据。
+- 修改内容、切换未来清单状态、上传图片时，会要求输入共享管理密码。
+- 两个人输入同一个 `BETWEEN_US_ADMIN_CODE` 后，都可以管理。
 
-当前数据边界集中在：
+## 常用入口
+
+- 管理后台：`/admin`
+- 照片墙添加相册照片：`/photos`
+- 未来清单快速添加：`/future`
+- 批量导入照片：`/admin` -> “照片” -> “批量导入”
+
+批量导入照片格式：
 
 ```txt
-src/hooks/use-memory-data.ts
+图片URL | 标题 | 日期YYYY-MM-DD | 地点 | 标签
+https://example.com/photo-1.jpg | 海边日落 | 2025-05-20 | 厦门 | 旅行,纪念日
+https://example.com/photo-2.jpg | 周末早餐 | 2025-06-01 | 家 | 日常,美食
 ```
-
-迁移时建议保留 `MemoryData` 及各实体类型不变，将这个 hook 替换为 repository/API 调用：
-
-- `timeline_events`
-- `photos`
-- `anniversaries`
-- `gifts`
-- `wishes`
-- `profiles`
-
-页面和组件只消费统一的数据结构，因此迁移数据库时不需要大规模改 UI。
 
 ## Vercel 部署
 
@@ -87,29 +109,22 @@ src/hooks/use-memory-data.ts
 npm run build
 ```
 
-5. Output Directory 保持默认。
-6. 如需设置站点 URL，在 Vercel Environment Variables 中添加：
-
-```bash
-NEXT_PUBLIC_SITE_URL=https://your-domain.vercel.app
-```
-
-7. 点击 Deploy。
+5. 添加上面的 Supabase 环境变量。
+6. 点击 Deploy。
 
 ## 常用命令
 
 ```bash
 npm run dev
-npm run build
+npm run lint
 npm run typecheck
+npm run build
 ```
 
 ## 自定义内容
 
-- 修改默认情侣名字与开始日期：`src/data/seed.json` 的 `profile`
-- 网站上线后的内容调整：进入 `/admin`，可修改基础设置、日期和照片
-- 批量导入照片：进入 `/admin` 的“照片”标签，点击“批量导入”
-- 新建标签：编辑时间线、照片或礼物时，在标签选择器里输入中文标签并添加
-- 修改标签文案：`src/lib/constants.ts`
-- 修改导航与页面结构：`src/components/app-shell.tsx`
-- 修改主题色：`src/app/globals.css`
+- 默认数据：`src/data/seed.json`
+- 数据类型：`src/types/memory.ts`
+- 数据同步逻辑：`src/hooks/use-memory-data.ts`
+- Supabase 服务端配置：`src/lib/supabase/server.ts`
+- 主题色：`src/app/globals.css`
