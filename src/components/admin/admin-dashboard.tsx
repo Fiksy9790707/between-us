@@ -22,7 +22,7 @@ import { useMemoryData, type CollectionKey } from "@/hooks/use-memory-data";
 import type { MemoryData, Photo, Profile, Tag } from "@/types/memory";
 import { saveImageFile } from "@/lib/image-upload";
 import { defaultTags, isChineseTag, uniqueTags } from "@/lib/constants";
-import { createId } from "@/lib/utils";
+import { createId, todayDateString } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -874,7 +874,7 @@ function normalizePayload(
 }
 
 function parseBulkPhotos(value: string): Photo[] {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayDateString();
 
   return value
     .split(/\r?\n/)

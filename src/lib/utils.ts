@@ -5,12 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export function formatDate(date: string) {
+export function formatDate(date: string | Date) {
+  const value = typeof date === "string" ? new Date(`${date}T00:00:00`) : date;
+
   return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
     month: "2-digit",
     day: "2-digit"
-  }).format(new Date(`${date}T00:00:00`));
+  }).format(value);
 }
 
 export function daysBetween(from: string, to = new Date()) {
@@ -44,6 +46,14 @@ export function daysUntil(date: Date) {
   const today = new Date();
   const base = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   return Math.max(0, Math.ceil((date.getTime() - base.getTime()) / 86400000));
+}
+
+export function todayDateString() {
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, "0");
+  const day = String(today.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
 }
 
 export function createId(prefix: string) {

@@ -7,7 +7,7 @@ import { useMemoryData } from "@/hooks/use-memory-data";
 import type { Photo } from "@/types/memory";
 import { fileBaseName } from "@/lib/file";
 import { saveImageFile } from "@/lib/image-upload";
-import { createId, formatDate } from "@/lib/utils";
+import { createId, formatDate, todayDateString } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -30,7 +30,7 @@ export function PhotosPage() {
     }
 
     setImporting(true);
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayDateString();
     const photos = await Promise.all(
       Array.from(files).map(async (file) => {
         const title = fileBaseName(file) || "相册照片";

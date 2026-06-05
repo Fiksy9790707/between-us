@@ -7,7 +7,7 @@ import { useMemoryData } from "@/hooks/use-memory-data";
 import type { WishItem } from "@/types/memory";
 import { fileBaseName } from "@/lib/file";
 import { saveImageFile } from "@/lib/image-upload";
-import { createId } from "@/lib/utils";
+import { createId, todayDateString } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -53,7 +53,7 @@ export function FuturePage() {
     actions.upsert("wishes", {
       ...item,
       status: done ? "todo" : "done",
-      targetDate: done ? undefined : new Date().toISOString().slice(0, 10)
+      targetDate: done ? undefined : todayDateString()
     });
   }
 

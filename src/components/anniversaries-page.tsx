@@ -74,7 +74,7 @@ export function AnniversariesPage() {
                       </Badge>
                     </div>
                     <p className="mt-1 text-sm text-muted-foreground">
-                      原始日期 {formatDate(item.date)} · 下一次 {formatDate(item.next.toISOString().slice(0, 10))}
+                      原始日期 {formatDate(item.date)} · 下一次 {formatDate(item.next)}
                     </p>
                   </div>
                 </div>
