@@ -15,15 +15,15 @@ import { Textarea } from "@/components/ui/textarea";
 
 const noteMoodOptions: { value: NoteMood; label: string }[] = [
   { value: "happy", label: "开心" },
+  { value: "sad", label: "难过" },
   { value: "miss", label: "想你" },
-  { value: "record", label: "记录" },
-  { value: "hug", label: "抱抱" }
+  { value: "upset", label: "烦躁" }
 ];
 
 export function HomePage() {
   const { data, ready, actions } = useMemoryData();
   const [noteDraft, setNoteDraft] = useState("");
-  const [noteMood, setNoteMood] = useState<NoteMood>("record");
+  const [noteMood, setNoteMood] = useState<NoteMood>("happy");
 
   if (!ready) {
     return <HomePageSkeleton />;
@@ -293,5 +293,5 @@ function Metric({ label, value, unit }: { label: string; value: string; unit: st
 }
 
 function moodLabel(mood: NoteMood) {
-  return noteMoodOptions.find((option) => option.value === mood)?.label ?? "记录";
+  return noteMoodOptions.find((option) => option.value === mood)?.label ?? "开心";
 }

@@ -242,13 +242,25 @@ function migrateMemoryData(data: MemoryData): MemoryData {
     wishes: data.wishes ?? [],
     notes: (data.notes ?? []).map((item) => ({
       ...item,
-      mood: item.mood ?? "record"
+      mood: normalizeNoteMood(item.mood)
     }))
   };
 }
 
 function migrateTags(tags: string[]) {
   return tags.map((tag) => legacyTagMap[tag] ?? tag);
+}
+
+function normalizeNoteMood(mood: unknown) {
+  if (mood === "happy" || mood === "sad" || mood === "miss" || mood === "upset") {
+    return mood;
+  }
+
+  if (mood === "hug") {
+    return "miss";
+  }
+
+  return "happy";
 }
 
 function notifySaveSuccess() {

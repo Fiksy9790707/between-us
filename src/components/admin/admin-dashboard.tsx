@@ -19,7 +19,7 @@ import {
   useState
 } from "react";
 import { useMemoryData, type CollectionKey } from "@/hooks/use-memory-data";
-import type { MemoryData, Photo, Profile, Tag } from "@/types/memory";
+import type { MemoryData, NoteMood, Photo, Profile, Tag } from "@/types/memory";
 import { saveImageFile } from "@/lib/image-upload";
 import { defaultTags, isChineseTag, uniqueTags } from "@/lib/constants";
 import { createId, todayDateString } from "@/lib/utils";
@@ -155,9 +155,9 @@ const entityConfig: Record<
         type: "select",
         options: [
           { label: "开心", value: "happy" },
+          { label: "难过", value: "sad" },
           { label: "想你", value: "miss" },
-          { label: "记录", value: "record" },
-          { label: "抱抱", value: "hug" }
+          { label: "烦躁", value: "upset" }
         ]
       },
       { name: "author", label: "署名" },
@@ -209,7 +209,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
   },
   notes: {
     date: "",
-    mood: "record",
+    mood: "happy",
     author: "",
     content: ""
   }
@@ -881,7 +881,7 @@ function normalizePayload(
       id,
       date: draft.date || todayDateString(),
       content: draft.content,
-      mood: (draft.mood || "record") as "happy" | "miss" | "record" | "hug",
+      mood: normalizeNoteMood(draft.mood),
       author: draft.author || undefined
     };
   }
@@ -951,4 +951,16 @@ function parseBulkPhotos(value: string): Photo[] {
 function parseTags(value: string, fallback: Tag[] = ["日常"]): Tag[] {
   const tags = uniqueTags(value.split(/[，,]/).map((tag) => tag.trim()));
   return tags.length ? tags : fallback;
+}
+
+function normalizeNoteMood(mood: string): NoteMood {
+  if (mood === "happy" || mood === "sad" || mood === "miss" || mood === "upset") {
+    return mood;
+  }
+
+  if (mood === "hug") {
+    return "miss";
+  }
+
+  return "happy";
 }
