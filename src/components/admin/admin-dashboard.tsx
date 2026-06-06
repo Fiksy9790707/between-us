@@ -149,6 +149,17 @@ const entityConfig: Record<
     prefix: "note",
     fields: [
       { name: "date", label: "日期", type: "date" },
+      {
+        name: "mood",
+        label: "状态",
+        type: "select",
+        options: [
+          { label: "开心", value: "happy" },
+          { label: "想你", value: "miss" },
+          { label: "记录", value: "record" },
+          { label: "抱抱", value: "hug" }
+        ]
+      },
       { name: "author", label: "署名" },
       { name: "content", label: "内容", type: "textarea" }
     ]
@@ -198,6 +209,7 @@ const emptyDraft: Record<CollectionKey, Record<string, string>> = {
   },
   notes: {
     date: "",
+    mood: "record",
     author: "",
     content: ""
   }
@@ -869,6 +881,7 @@ function normalizePayload(
       id,
       date: draft.date || todayDateString(),
       content: draft.content,
+      mood: (draft.mood || "record") as "happy" | "miss" | "record" | "hug",
       author: draft.author || undefined
     };
   }

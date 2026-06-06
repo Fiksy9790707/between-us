@@ -240,7 +240,10 @@ function migrateMemoryData(data: MemoryData): MemoryData {
     })),
     anniversaries: data.anniversaries ?? [],
     wishes: data.wishes ?? [],
-    notes: data.notes ?? []
+    notes: (data.notes ?? []).map((item) => ({
+      ...item,
+      mood: item.mood ?? "record"
+    }))
   };
 }
 

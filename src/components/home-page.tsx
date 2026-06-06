@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { type FormEvent, useState } from "react";
 import { ArrowRight, CalendarDays, Camera, Heart, MapPin, Send } from "lucide-react";
 import { useMemoryData } from "@/hooks/use-memory-data";
+import type { NoteMood } from "@/types/memory";
 import { createId, daysBetween, formatDate, todayDateString } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,9 +13,17 @@ import { Badge } from "@/components/ui/badge";
 import { MemoryImage } from "@/components/memory-image";
 import { Textarea } from "@/components/ui/textarea";
 
+const noteMoodOptions: { value: NoteMood; label: string }[] = [
+  { value: "happy", label: "开心" },
+  { value: "miss", label: "想你" },
+  { value: "record", label: "记录" },
+  { value: "hug", label: "抱抱" }
+];
+
 export function HomePage() {
   const { data, ready, actions } = useMemoryData();
   const [noteDraft, setNoteDraft] = useState("");
+  const [noteMood, setNoteMood] = useState<NoteMood>("record");
 
   if (!ready) {
     return <HomePageSkeleton />;
@@ -35,6 +44,7 @@ export function HomePage() {
       id: createId("note"),
       date: todayDateString(),
       content,
+      mood: noteMood,
       author: data.profile.names.personA || undefined
     });
     setNoteDraft("");
@@ -141,10 +151,13 @@ export function HomePage() {
             </div>
             {latestNote ? (
               <>
-                <p className="mt-4 text-lg leading-8">{latestNote.content}</p>
+                <div className="mt-4 flex flex-wrap items-center gap-2">
+                  <Badge variant="outline">{moodLabel(latestNote.mood)}</Badge>
+                  <span className="text-xs text-muted-foreground">{formatDate(latestNote.date)}</span>
+                </div>
+                <p className="mt-3 text-lg leading-8">{latestNote.content}</p>
                 <p className="mt-3 text-xs text-muted-foreground">
-                  {formatDate(latestNote.date)}
-                  {latestNote.author ? ` · ${latestNote.author}` : ""}
+                  {latestNote.author ?? ""}
                 </p>
               </>
             ) : (
@@ -158,6 +171,19 @@ export function HomePage() {
         <Card>
           <CardContent className="p-5">
             <form className="space-y-3" onSubmit={submitNote}>
+              <div className="flex flex-wrap gap-2">
+                {noteMoodOptions.map((option) => (
+                  <Button
+                    key={option.value}
+                    type="button"
+                    size="sm"
+                    variant={noteMood === option.value ? "default" : "outline"}
+                    onClick={() => setNoteMood(option.value)}
+                  >
+                    {option.label}
+                  </Button>
+                ))}
+              </div>
               <Textarea
                 value={noteDraft}
                 placeholder="写一句今天想留给对方的话"
@@ -264,4 +290,8 @@ function Metric({ label, value, unit }: { label: string; value: string; unit: st
       </p>
     </div>
   );
+}
+
+function moodLabel(mood: NoteMood) {
+  return noteMoodOptions.find((option) => option.value === mood)?.label ?? "记录";
 }

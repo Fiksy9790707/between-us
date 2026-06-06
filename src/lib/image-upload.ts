@@ -1,11 +1,13 @@
 "use client";
 
 import { readFileAsDataUrl } from "@/lib/file";
+import { compressImageFile } from "@/lib/image-compression";
 import { uploadImageToSupabase } from "@/lib/supabase/browser";
 
 export async function saveImageFile(file: File) {
+  const uploadFile = await compressImageFile(file);
   const formData = new FormData();
-  formData.append("file", file);
+  formData.append("file", uploadFile);
 
   try {
     const response = await fetch("/api/upload", {
@@ -21,9 +23,9 @@ export async function saveImageFile(file: File) {
     return payload.url;
   } catch {
     try {
-      return await uploadImageToSupabase(file);
+      return await uploadImageToSupabase(uploadFile);
     } catch {
-      return readFileAsDataUrl(file);
+      return readFileAsDataUrl(uploadFile);
     }
   }
 }

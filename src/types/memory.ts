@@ -1,4 +1,5 @@
 export type Tag = string;
+export type NoteMood = "happy" | "miss" | "record" | "hug";
 
 export type Profile = {
   names: {
@@ -64,6 +65,7 @@ export type LoveNote = {
   id: string;
   date: string;
   content: string;
+  mood: NoteMood;
   author?: string;
 };
 
